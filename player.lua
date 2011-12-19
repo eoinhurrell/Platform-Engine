@@ -13,13 +13,14 @@ function player.load()
    ply.pos = vector.load(0,0)
    ply.velocity = vector.load(0,0)
    ply.health = 100
-   ply.gravity = 400
+   ply.gravity = 180
    ply.jumpVal = vector.load(0,0)
    ply.image = love.graphics.newImage("assets/player.png")
    ply.state = 'alive'
    ply.score = 0
-   ply.speed = 800
+   ply.speed = 200
    ply.jumping = false
+   ply.running = false
    ply.hangTime = 17
    ply.entities = {}
    ply.onGround = true
@@ -79,7 +80,7 @@ function player:getStatus()
 end
 
 function player:move(dx, dy)
-  self.pos.x = self.pos.x + (dx or 0)
+  self.pos.x = self.pos.x + dx
   for i,object in ipairs(self.entities) do
       if self:collides(self.pos.x, self.pos.y,self.image:getWidth(),self.image:getHeight(),object:getX(),object:getY(),object:getW(),object:getH()) then
          effects = object:contact{axis='x',y=self.velocity.y}
@@ -103,7 +104,7 @@ function player:move(dx, dy)
       end
    end
 
-  self.pos.y = self.pos.y + (dy or 0)
+  self.pos.y = self.pos.y + dy
   for i,object in ipairs(self.entities) do
       if self:collides(self.pos.x, self.pos.y,self.image:getWidth(),self.image:getHeight(),object:getX(),object:getY(),object:getW(),object:getH()) then
          effects = object:contact{axis='y',y=self.velocity.y}
@@ -123,8 +124,10 @@ function player:move(dx, dy)
             self.onGround = true
          end
          self.pos.y = self.pos.y - dy
+         self.velocity.y = self.velocity.y/2
       end
    end
+   self.s = "{"..dx..","..dy.."}"
 end
 
 function player:hurt(damage)
@@ -183,12 +186,18 @@ end
 
 --set velocity/action alterations based on controls
 function player:keypressed(key,unicode)
+   --if key == "rshift" or key == "lshift" then
+   --   if self.running ~= true and self.velocity.x ~= 0 then
+   --      self.speed = self.speed*2
+   --      self.running = true
+   --   end
+   --end
+
    if key == "right" or key == 'd' then
       self.velocity = self.velocity + vector.load(self.speed,0)
    elseif key == "left" or key == 'a' then
       self.velocity = self.velocity - vector.load(self.speed,0)
    end
-
    if key == "down" or key == "s" then
       --crouch
        self.velocity = self.velocity + vector.load(0,self.speed)
@@ -203,6 +212,12 @@ end
 
 --return to the status quo after buttons are released 
 function player:keyreleased(key,unicode)
+   --if key == "rshift" or key == "lshift" then
+   --   if self.running then
+   --      self.speed = self.speed/2
+   --      self.running = false
+   --   end
+   --end
    if (key == "right" or key == 'd') and self.velocity.x ~= 0 then
       self.velocity = self.velocity - vector.load(self.speed,0)
    elseif (key == "left" or key == 'a') and self.velocity.x ~= 0  then
@@ -222,13 +237,13 @@ function player:update(dt)
 
    --jumping?
    if self.jumping then
-      if self.hangTime == 0 then --no longer jumping, either on ground or soon to be in freefall
+      if self.hangTime <= 0 then --no longer jumping, either on ground or soon to be in freefall
          self.jumping = false
-         self.hangTime = 17
-         self.velocity.y = 0 --ideally keep falling til hit something
+         self.hangTime = 18
+         self.velocity.y = self.gravity --ideally keep falling til hit something
       else --still in air, legitmate jump
          self.hangTime = self.hangTime - 1
-         self.jumpVal = (self.gravity * 15 * self.hangTime)
+         self.jumpVal = (self.gravity * 30 * self.hangTime)
          self.velocity.y = self.velocity.y - (self.jumpVal*dt)
       end
    end

@@ -23,8 +23,8 @@ function world.load()
 
    wor.mapX = 1
    wor.mapY = 1
-   wor.tilesDisplayWidth = 50
-   wor.tilesDisplayHeight = 20
+   wor.tilesDisplayWidth = 32
+   wor.tilesDisplayHeight = 32
   
    wor.zoomX = 1
    wor.zoomY = 1
@@ -32,13 +32,13 @@ function world.load()
    wor.tilesetImage:setFilter("nearest", "linear") -- this "linear filter" removes some artifacts if we were to scale the tiles
    wor.tileSize = 32
    -- grass
-   wor.tileQuads[0] = love.graphics.newQuad(0 * wor.tileSize, 20 * wor.tileSize, wor.tileSize, wor.tileSize,
+   wor.tileQuads[0] = love.graphics.newQuad(0 * wor.tileSize, 0 * wor.tileSize, wor.tileSize, wor.tileSize,
      wor.tilesetImage:getWidth(), wor.tilesetImage:getHeight())
    -- kitchen floor tile
-   wor.tileQuads[1] = love.graphics.newQuad(2 * wor.tileSize, 0 * wor.tileSize, wor.tileSize, wor.tileSize,
+   wor.tileQuads[1] = love.graphics.newQuad(1 * wor.tileSize, 0 * wor.tileSize, wor.tileSize, wor.tileSize,
      wor.tilesetImage:getWidth(), wor.tilesetImage:getHeight())
    -- parquet flooring
-   wor.tileQuads[2] = love.graphics.newQuad(4 * wor.tileSize, 0 * wor.tileSize, wor.tileSize, wor.tileSize,
+   wor.tileQuads[2] = love.graphics.newQuad(2 * wor.tileSize, 0 * wor.tileSize, wor.tileSize, wor.tileSize,
      wor.tilesetImage:getWidth(), wor.tilesetImage:getHeight())
    -- middle of red carpet
    wor.tileQuads[3] = love.graphics.newQuad(3 * wor.tileSize, 9 * wor.tileSize, wor.tileSize, wor.tileSize,
@@ -92,7 +92,11 @@ function world:updateLevel(dt)
    self.tilesetLevel:clear()
    for x=0, self.tilesDisplayWidth-1 do
       for y=2, self.tilesDisplayHeight-1 do
-         self.tilesetLevel:addq(self.tileQuads[self.map[x+self.mapX][y+self.mapY]], x*self.tileSize, y*self.tileSize)
+         if y == 2 then
+            self.tilesetLevel:addq(self.tileQuads[1], x*self.tileSize, y*self.tileSize)
+         else
+            self.tilesetLevel:addq(self.tileQuads[0], x*self.tileSize, y*self.tileSize)
+         end
       end
    end
 end
@@ -102,7 +106,7 @@ function world:updateBackground(dt)
    self.tilesetBack:clear()
    for x=0, self.tilesDisplayWidth-1 do
       for y=0, self.tilesDisplayHeight-1 do
-         self.tilesetBack:addq(self.tileQuads[1], x*self.tileSize, y*self.tileSize)
+         self.tilesetBack:addq(self.tileQuads[3], x*self.tileSize, y*self.tileSize)
       end
    end
 end
@@ -111,8 +115,8 @@ function world:updateForeground(dt)
    self.tilesetFore:clear()
    for x=0, self.tilesDisplayWidth-1 do
       for y=3, self.tilesDisplayHeight-1 do
-         if math.random(0,1) ~= 0 then
-            self.tilesetFore:addq(self.tileQuads[self.map[x+self.mapX][y+self.mapY]], x*self.tileSize, y*self.tileSize)
+         if math.random(0,4) == 0 then
+            self.tilesetFore:addq(self.tileQuads[2], x*self.tileSize, y*self.tileSize)
          end
       end
    end
@@ -120,10 +124,10 @@ end
 
 function world:drawLevel()
    --self:updateLevel()
-   love.graphics.draw(self.tilesetLevel)
    love.graphics.setColor(51,24,25)
    love.graphics.rectangle('fill', 0,64,1600,640)
    love.graphics.setColor(255,255,255)
+   love.graphics.draw(self.tilesetLevel)
    --junk
    for i,v in ipairs(self.entities) do 
        v:draw()
