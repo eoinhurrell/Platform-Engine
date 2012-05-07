@@ -13,7 +13,7 @@ function player.load()
    ply.pos = vector.load(0,0)
    ply.velocity = vector.load(0,0)
    ply.health = 100
-   ply.gravity = 180
+   ply.gravity = 290
    ply.jumpVal = vector.load(0,0)
    ply.image = love.graphics.newImage("assets/player.png")
    ply.state = 'alive'
@@ -21,7 +21,7 @@ function player.load()
    ply.speed = 200
    ply.jumping = false
    ply.running = false
-   ply.hangTime = 17
+   ply.hangTime = 20
    ply.entities = {}
    ply.onGround = true
    ply.scaleX = 1
@@ -38,18 +38,35 @@ function player:getState()
    return self.state
 end
 
+function player:setState(state)
+   self.state = state
+end
+
 function player:getScore()
    return self.score
+end
+
+function player:setAnim(anim)
+   --really bad for memory usage, get ready for tileset!
+   if anim == "left" then
+      self.image = love.graphics.newImage("assets/player-left.png")
+   elseif anim == "right" then
+      self.image = love.graphics.newImage("assets/player-right.png")
+   elseif anim == "stand" then
+      self.image = love.graphics.newImage("assets/player.png")
+   elseif anim == "dead" then
+      self.image = love.graphics.newImage("assets/player-dead.png")
+   end 
 end
 
 -- Collision detection function.
 -- Checks if box1 and box2 overlap.
 -- w and h mean width and height.
 function player:collides(box1x, box1y, box1w, box1h, box2x, box2y, box2w, box2h)
-    if box1x > box2x + box2w - 1 or -- Is box1 on the right side of box2?
-       box1y > box2y + box2h - 1 or -- Is box1 under box2?
-       box2x > box1x + box1w - 1 or -- Is box2 on the right side of box1?
-       box2y > box1y + box1h - 1    -- Is b2 under b1?
+    if box1x > (box2x + box2w - 1) or -- Is box1 on the right side of box2?
+       box1y > (box2y + box2h - 1) or -- Is box1 under box2?
+       box2x > (box1x + box1w - 1) or -- Is box2 on the right side of box1?
+       box2y > (box1y + box1h - 1)    -- Is b2 under b1?
     then
         return false                -- No collision. Yay!
     else
@@ -80,10 +97,11 @@ function player:getStatus()
 end
 
 function player:move(dx, dy)
+  --can check if collides, velocity determines collision direction
   self.pos.x = self.pos.x + dx
   for i,object in ipairs(self.entities) do
       if self:collides(self.pos.x, self.pos.y,self.image:getWidth(),self.image:getHeight(),object:getX(),object:getY(),object:getW(),object:getH()) then
-         effects = object:contact{axis='x',y=self.velocity.y}
+         effects = object:contact{axis='x',y=self.velocity.y,pos=self.pos.x}
          if effects.score ~= nil then 
             self.score = self.score + effects.score
          end
@@ -95,7 +113,13 @@ function player:move(dx, dy)
          end
          if effects.damage ~= nil then
             self.health = self.health - effects.damage
-            self.velocity.x = self.velocity.x - 50 
+            --knockback
+            if self.velocity.x < 0 then
+               self.pos.x = self.pos.x + 20
+            else
+               self.pos.x = self.pos.x - 20
+            end
+            --self.velocity.x = self.velocity.x - 50 --some knockback
          end
          if effects.land ~= nil then
             self.onGround = true
@@ -107,7 +131,7 @@ function player:move(dx, dy)
   self.pos.y = self.pos.y + dy
   for i,object in ipairs(self.entities) do
       if self:collides(self.pos.x, self.pos.y,self.image:getWidth(),self.image:getHeight(),object:getX(),object:getY(),object:getW(),object:getH()) then
-         effects = object:contact{axis='y',y=self.velocity.y}
+         effects = object:contact{axis='y',y=self.velocity.y,pos=self.pos.y}
          if effects.score ~= nil then 
             self.score = self.score + effects.score
          end
@@ -186,17 +210,15 @@ end
 
 --set velocity/action alterations based on controls
 function player:keypressed(key,unicode)
-   --if key == "rshift" or key == "lshift" then
-   --   if self.running ~= true and self.velocity.x ~= 0 then
-   --      self.speed = self.speed*2
-   --      self.running = true
-   --   end
-   --end
-
+   if key == "rshift" or key == "lshift" then
+      self.running = true
+   end
    if key == "right" or key == 'd' then
       self.velocity = self.velocity + vector.load(self.speed,0)
+      self:setAnim("right")
    elseif key == "left" or key == 'a' then
       self.velocity = self.velocity - vector.load(self.speed,0)
+      self:setAnim("left")
    end
    if key == "down" or key == "s" then
       --crouch
@@ -206,24 +228,22 @@ function player:keypressed(key,unicode)
       if self.onGround then
          self.jumping = true
          self.onGround = false
+         self:setAnim("jump")
       end
    end
 end
 
 --return to the status quo after buttons are released 
 function player:keyreleased(key,unicode)
-   --if key == "rshift" or key == "lshift" then
-   --   if self.running then
-   --      self.speed = self.speed/2
-   --      self.running = false
-   --   end
-   --end
+   if key == "rshift" or key == "lshift" then
+      self.running = false
+   end
    if (key == "right" or key == 'd') and self.velocity.x ~= 0 then
       self.velocity = self.velocity - vector.load(self.speed,0)
    elseif (key == "left" or key == 'a') and self.velocity.x ~= 0  then
       self.velocity = self.velocity + vector.load(self.speed,0)
    elseif (key=="down" or key =="s") and self.velocity ~= 0 then
-      self.velocity = self.velocity - vector.load(0,self.speed)
+      self.velocity = self.velocity - vector.load(0,self.speed) --crouch?
    end
 end
 
@@ -232,6 +252,19 @@ function player:update(dt)
    --update animation
 
    --update position
+   if self.onGround then
+      if self.gravity > 20 then
+         self.gravity = self.gravity - 10
+      end
+   else 
+      self.gravity = 190
+   end
+   --running
+   if self.running then
+      self.speed = 400
+   else
+      self.speed = 200
+   end
    --gravity
    self.velocity.y = self.gravity
 
@@ -239,18 +272,20 @@ function player:update(dt)
    if self.jumping then
       if self.hangTime <= 0 then --no longer jumping, either on ground or soon to be in freefall
          self.jumping = false
-         self.hangTime = 18
-         self.velocity.y = self.gravity --ideally keep falling til hit something
+         self.hangTime = 20
       else --still in air, legitmate jump
          self.hangTime = self.hangTime - 1
-         self.jumpVal = (self.gravity * 30 * self.hangTime)
-         self.velocity.y = self.velocity.y - (self.jumpVal*dt)
+         --self.jumpVal = (self.gravity * 30 * self.hangTime)
+         self.pos.y = self.pos.y - 800*dt --vertical speed of jump.slower and longer hangtime = more horizontal movement         
       end
    end
 
    --move
    self:move(self.velocity.x*dt,self.velocity.y*dt)
-
+   --HACK: reapply gravity if you've walked off the edge of something
+   if self.velocity.y == self.gravity then
+      self.onGround = false
+   end
    --pit damage
    if self.pos.y >= 100 then
       self:hurt(1)
@@ -262,14 +297,19 @@ function player:update(dt)
    --check health, stop if dead
    if self.health <= 0 then
       self.state = 'dying'
-      self.image = love.graphics.newImage("assets/player-dead.png")
+      self:setAnim("dead")
    end
 
    if self.state == 'dying' then
-      self.hangTime = self.hangTime - 1
-      if self.hangTime <= 0 then
+      self.hangTime = self.hangTime + 1
+      if self.hangTime >= 60 then
          self.state = 'dead'
+         self:setAnim("dead")
       end
+   end
+
+   if self.velocity.x == 0 and not self.jumping then
+      self:setAnim("stand")
    end
 end
 

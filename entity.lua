@@ -62,7 +62,7 @@ function entity:contact(args)
       return effects 
    end
    if self.kind == 'item' then 
-      if args.axis == 'y' and args.y < 0 then   --hit from below 
+      if args.axis == 'y' and args.y < 0 then   --hit from below
          effects.score = 100
          effects.health = 30
          self:finish()

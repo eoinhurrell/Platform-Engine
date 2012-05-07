@@ -1,9 +1,18 @@
-zip -r build/platform.love . -x "build/*"
-if [ $1 == "run" ]
-then
+#!/bin/bash
+zip -r build/platform.love . -x "build/*" ".git/*" ".*"
+case "$1" in
+  "run" )
+   echo "running: build/platform.love"
    open build/platform.love
-fi
-if [ $1 == "dist" ]
-then
+  ;;
+  "build")
+   echo "built"
+  ;;
+  "dist")
+   echo "dist"
+  ;;
+   * )
+  ;;
 
-fi 
+esac
+
