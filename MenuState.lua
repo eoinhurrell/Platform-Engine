@@ -15,5 +15,6 @@ function MenuState:update(dt)
 end
 
 function MenuState:draw()
-	
+	love.graphics.setBackgroundColor(255,0,0)
+	love.graphics.clear()
 end

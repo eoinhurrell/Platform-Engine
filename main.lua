@@ -1,5 +1,6 @@
 require "Player"
 require "GameInfo"
+--require "debug"
 --assigning state
 --gamestate = gamestates[3]
 --calling functions for state
@@ -7,13 +8,14 @@ require "GameInfo"
 
 function love.load()
 	game = GameInfo:new()
+	game:load()
     -- g = love.graphics
     -- playerColor = {255,0,128}
     -- groundColor = {25,200,25}
     
     -- instantiate our player and set initial values
 
-    -- p = Player:new()
+    -- 
     -- 
     -- p.x = 300
     -- p.y = 300
@@ -57,31 +59,18 @@ end
  
 function love.draw()
 	state = game:getState()
-	state:update(dt)
-    -- -- round down our x, y values
-    -- local x = math.floor(p.x)
-    -- local y = math.floor(p.y)
-    -- 
-    -- -- draw the player shape
-    -- g.setColor(playerColor)
-    -- g.rectangle("fill", x, y, p.width, p.height)
-    -- 
-    -- -- draw the ground
-    -- g.setColor(groundColor)
-    -- g.rectangle("fill", 0, yFloor, 800, 100)
-    -- 
-    -- -- debug information
-    -- g.setColor(255, 255, 255)
-    -- local isTrue = ""
-    -- g.print("Player coordinates: ("..x..","..y..")", 5, 5)
-    -- g.print("Current state: "..p.state, 5, 20)
+	state:draw()
+	if game:isDebug() then
+		--g.print("Player coordinates: ("..x..","..y..")", 5, 5)
+		--g.print("Current state: "..p.state, 5, 20)
+	end
 end
  
-function love.keyreleased(key)
-    if key == "escape" then
-        love.event.quit()  -- actually causes the app to quit
-    end
-    if (key == "right") or (key == "left") then
-        p:stop()
-    end
-end
+-- function love.keyreleased(key)
+--     if key == "escape" then
+--         love.event.quit()  -- actually causes the app to quit
+--     end
+--     if (key == "right") or (key == "left") then
+--         --p:stop()
+--     end
+-- end

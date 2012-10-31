@@ -12,6 +12,7 @@ function GameInfo:new()
 		volume_sound = 100,
 		volume_music = 100,
 		debug = true,
+		log_file = "debug.log",
 		--hud_console = Console:new(),
 		--achievements = Achievements:new(),
 
@@ -28,19 +29,21 @@ function GameInfo:new()
 		--state info
 		state = "intro",
 		state_stack = {},
-		intro = nil,
-		loads = nil,
-		menus = nil,
-		level = nil,
-		pause = nil,
-		gamestates = {},
+		gamestates = {}
 	}
-	object.intro = IntroState:new(self)
-	object.loads = LoadState:new(self)
-	object.gamestates["intro"] = {object.intro:update(dt) , object.intro:draw()}
-	object.gamestates["loading"] = {object.loads:update(dt) , object.loads:draw()}
 	setmetatable(object, { __index = GameInfo })
 	return object
+end
+
+function GameInfo:load()
+	--t = love.timer.getMicroTime()
+	self.gamestates["intro"]  = IntroState:new(self)
+	self.gamestates["loading"]= LoadState:new(self)
+	self.gamestates["level"]  = GameState:new(self)
+	self.gamestates["pause"]  = PauseState:new(self)
+	self.gamestates["menus"]  = MenuState:new(self)
+	--s = "Loaded states in "..(love.timer.getMicroTime()-t).."seconds." NIL APPARENTLY
+	--self.logMsg(s)
 end
 
 --FILE OPERATIONS
@@ -91,17 +94,22 @@ end
 --deferred loading
 function GameInfo:defferedLoading()
 	self:setState("loading")
-	loads:waitingFor("menus")
-	-- menus = MenuState:new(self)
-	-- level = GameState:new(self)
-	-- pause = PauseState:new(self)
+	self.gamestates["loading"]:waitFor("menus")
+
 	-- self:addGamestate("menus",menus)
 	-- self:addGamestate("level",level)
 	-- self:addGamestate("pause",pause)
 end
+-- goes through loading state to get to wanted state
+function GameInfo:loadState(state_name)	
+	self:changeState("loading")
+	self.gamestates["loading"]:waitFor(state_name)
+end
 
-function GameInfo:getGamestates()
-	return self.gamestates
+--Clears the stack too
+function GameInfo:loadCleanState(state_name)
+	self.game:setState("loading")
+	self.gamestates["loading"]:waitFor(state_name)
 end
 
 --add stack, for deferred loading of states
@@ -110,26 +118,30 @@ function GameInfo:addGamestate(state_name, obj)
 end
 
 --will want to go back
-function GameInfo:changeState(current_state,new_state_name)
-	self:pushState(current_state)
+function GameInfo:changeState(new_state_name)
+	self:pushState(self.state)
 	self.state = new_state_name
 end
 
 --resets stack! Won't want to return
 function GameInfo:setState(state_name)
 	self.state = state_name
-	self.state_stack = {}
 end
 
 --returns state object, not name
 function GameInfo:getState()
-	return self.gamestates[self.state]
+	local s = self.state
+	if self.gamestates[s] == nil then
+		error('no states')
+	end
+	return self.gamestates[s]
 end
 
 --pushes a state object onto the stack
 function GameInfo:pushState(state)
 	--table.insert(self.state_stack,state)
-	self.state_stack[#self.state_stack+1] = state
+	--self.state_stack[1] = state
+	
 end
 
 function GameInfo:popState() -- for now can only go one step back
@@ -182,10 +194,17 @@ function GameInfo:setMusicVolume(volume)
 	self.volume_music = 100
 end
 
-function GameInfo:getDebugStatus()
+function GameInfo:isDebug()
 	return self.debug
 end
 
 function GameInfo:setDebugStatus(set_debug)
 	self.debug = set_debug
+end
+
+function GameInfo:logMsg(msg)
+	love.filesystem.write(self.log_file, msg,string.byte(msg))
+	if self.debug then
+		print(msg)
+	end
 end

@@ -8,9 +8,12 @@ function GameState:new(g)
 	local object = {
 		game = g
 	}
-	self.loadLevel()
 	setmetatable(object, { __index = GameState })
 	return object
+end
+
+function GameState:load()
+	self:loadLevel()
 end
 
 function GameState:update(dt)

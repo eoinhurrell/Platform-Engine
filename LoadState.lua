@@ -18,7 +18,6 @@ function LoadState:update(dt)
 	local dt = dt or 1
 	t = self.game --gamestates
 	for i,v in ipairs(t) do
-		print(i,v) 
 		if i == self.waiting_state then --it's been loaded
 			if self.game.debug then 
 				--print "Load time for "..self.waiting_state.." :"..self.loadtime 
@@ -27,18 +26,21 @@ function LoadState:update(dt)
 		end
 	end
 	self.loadtime = self.loadtime + dt
-	if self.loadtime > 1000 and self.game.debug then 
+	if self.loadtime > 3 then
+		self.game:setState(self.waiting_state)
+		if self.game.debug then 
 		--print "SLOW: "..self.waiting_state.." :"..self.loadtime 
+		end
 	end
 end
 
 function LoadState:draw()
 	local screen_width = love.graphics.getWidth()
 	local screen_height = love.graphics.getHeight()
-	--love.graphics.draw(self.loading_image,screen_width/2 - self.loading_image.width/2,screen_height/2 - self.loading_image.height/2)	
-	love.graphics.draw(self.loading_image,screen_width/2 - 800,screen_height/2 - 400)	
+	love.graphics.draw(self.loading_image,screen_width/2 - self.loading_image:getWidth()/2-100,screen_height/2 - self.loading_image:getHeight()/2)	
+	-- love.graphics.draw(self.loading_image,screen_width/2 - 800,screen_height/2 - 400)	
 end
 
-function LoadState:waitingFor(state)
+function LoadState:waitFor(state)
 	self.waiting_state = state
 end
