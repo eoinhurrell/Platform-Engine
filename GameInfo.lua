@@ -1,10 +1,12 @@
 GameInfo = {}
 
-require "IntroState"
-require "LoadState"
-require "MenuState"
-require "GameState"
-require "PauseState"
+require "states/IntroState"
+require "states/LoadState"
+require "states/MenuState"
+require "states/GameState"
+require "states/PauseState"
+require "lib/Console"
+
 -- Constructor
 function GameInfo:new()
 	-- define our parameters here
@@ -13,20 +15,20 @@ function GameInfo:new()
 		volume_music = 100,
 		debug = true,
 		log_file = "debug.log",
-		--hud_console = Console:new(),
 		--achievements = Achievements:new(),
 
 		--gameplay variables
-		player = Player:new(),
 		level = 1, --index down the list of levels available.
 		level_files = {},
 		diff_modifier = {easy=0.5,normal=1.0,hard=2.0},
 		difficulty = "normal",
 		god = false,
 		health = 100,
+		score = 0,
 		gravity = 1800,
 		
 		--state info
+		current_state = nil,
 		state = "intro",
 		state_stack = {},
 		gamestates = {}
@@ -37,13 +39,25 @@ end
 
 function GameInfo:load()
 	--t = love.timer.getMicroTime()
+	self.gamestates["console"]= Console:new(self)
 	self.gamestates["intro"]  = IntroState:new(self)
 	self.gamestates["loading"]= LoadState:new(self)
 	self.gamestates["level"]  = GameState:new(self)
 	self.gamestates["pause"]  = PauseState:new(self)
 	self.gamestates["menus"]  = MenuState:new(self)
+	self.current_state = self.gamestates[self.state]
 	--s = "Loaded states in "..(love.timer.getMicroTime()-t).."seconds." NIL APPARENTLY
 	--self.logMsg(s)
+end
+
+function GameInfo:switch(to, ...)
+	to_state = self.gamestates[to]
+	self.current_state:leave()
+	local pre = self.current_state
+	to_state:init()
+	to_state.init = to_state.enter--__NULL__ --Can't be called again?
+	self.current_state = to_state
+	return self.current_state:enter(pre, ...)
 end
 
 --FILE OPERATIONS
@@ -106,35 +120,9 @@ function GameInfo:loadState(state_name)
 	self.gamestates["loading"]:waitFor(state_name)
 end
 
---Clears the stack too
-function GameInfo:loadCleanState(state_name)
-	self.game:setState("loading")
-	self.gamestates["loading"]:waitFor(state_name)
-end
-
---add stack, for deferred loading of states
-function GameInfo:addGamestate(state_name, obj)
-	self.gamestates[state_name] = {obj:update() , obj:draw()}
-end
-
---will want to go back
-function GameInfo:changeState(new_state_name)
-	self:pushState(self.state)
-	self.state = new_state_name
-end
-
---resets stack! Won't want to return
-function GameInfo:setState(state_name)
-	self.state = state_name
-end
-
 --returns state object, not name
 function GameInfo:getState()
-	local s = self.state
-	if self.gamestates[s] == nil then
-		error('no states')
-	end
-	return self.gamestates[s]
+	return self.current_state
 end
 
 --pushes a state object onto the stack
@@ -155,6 +143,7 @@ end
 function GameInfo:getDiffModifier()
 	--diff_modifier = {easy=0.5,normal=1.0,hard=2.0}
 	--difficulty = "normal"
+	return diff_modifier[difficulty]
 end
 
 function GameInfo:getConsole()
