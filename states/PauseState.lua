@@ -16,7 +16,7 @@ end
 
 function PauseState:init()
 	self.input = Input:new()
-	self.input:addButton("press","p",function()self.game:switch(self.from.name)end)
+	self.input:addButton("press","escape",function()self.game:switch(self.from.name)end)
 	--self.input:addButton("press","`",function()self.game:switch("console")end)	
 end --when state is first created, run only once
 function PauseState:leave()end --when state is no longer active

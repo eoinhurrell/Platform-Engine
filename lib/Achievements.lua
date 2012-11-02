@@ -19,7 +19,7 @@ function Achievements:new()
        justUnlocked = nil,  -- or most recent achievement
        notification = nil,  --achievement being used
        notifying = false,
-       notifyTime = 200 --ms
+       notifyTime = 2 --ms
     }
     setmetatable(object, { __index = Achievements })
     return object
@@ -34,14 +34,21 @@ end
 function Achievements:unlock(id)
 	if not self.achieves[id].unlocked then
 		self.achieves[id].unlocked = true
-		self.justUnlocked = self.achieves[i]
+		self.justUnlocked = self.achieves[id]
 		--anything else
 	end
 end
  
 -- Set whether to notify on last achievement, and for how long.
 function Achievements:update(dt)
-	if self.justUnlocked != nil then
+	if self.notifying then
+		self.notifyTime = self.notifyTime - dt
+		if self.notifyTime <= 0 then
+			self.notifying = false
+			self.notifyTime = notification_time
+		end
+	end
+	if self.justUnlocked ~= nil then
 		self.notification = self.justUnlocked
 		self.justUnlocked = nil
 		self.notifying = true
@@ -49,14 +56,16 @@ function Achievements:update(dt)
 end
 
 -- Draw achievement notification
-function Achievements:draw(dt)
+function Achievements:draw()
 	if self.notifying then
 		--display achievement info
-		print self.notification.id .. ": " .. self.notification.name .. ", " .. self.notification.desc
-		self.notifyTime -= dt
-		if self.notifyTime <= 0 then
-			self.notifying = false
-			self.notifyTime = notification_time
-		end
+		local height=love.graphics.getHeight()
+		local width=love.graphics.getWidth()
+		love.graphics.setColor(126,126,126)
+		love.graphics.rectangle("fill",width-160,height-100,160,100)
+		love.graphics.setColor(0,0,0)
+		love.graphics.print(self.notification.name,width-110,height-70)
+		love.graphics.print(self.notification.desc,width-110,height-50)
+		love.graphics.print(self.notification.img,width-110,height-30)
 	end
 end

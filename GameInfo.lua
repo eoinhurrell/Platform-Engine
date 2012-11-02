@@ -5,6 +5,7 @@ require "states/LoadState"
 require "states/MenuState"
 require "states/GameState"
 require "states/PauseState"
+require "lib/Achievements"
 require "lib/Console"
 
 -- Constructor
@@ -15,7 +16,7 @@ function GameInfo:new()
 		volume_music = 100,
 		debug = true,
 		log_file = "debug.log",
-		--achievements = Achievements:new(),
+		achievements = Achievements:new(),
 
 		--gameplay variables
 		level = 1, --index down the list of levels available.
@@ -46,6 +47,8 @@ function GameInfo:load()
 	self.gamestates["pause"]  = PauseState:new(self)
 	self.gamestates["menus"]  = MenuState:new(self)
 	self.current_state = self.gamestates[self.state]
+	
+	self.achievements:register("001","ZZZ","Caught some z!","assets/player.png")
 	--s = "Loaded states in "..(love.timer.getMicroTime()-t).."seconds." NIL APPARENTLY
 	--self.logMsg(s)
 end
@@ -95,6 +98,14 @@ end
 function GameInfo:isAlive()
 	if self.health > 0 then return true end
 	return false
+end
+
+function GameInfo:getScore()
+	return self.score
+end
+
+function GameInfo:addScore(amount)
+	self.score = self.score + amount
 end
 
 function GameInfo:getLevel()
