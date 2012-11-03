@@ -208,3 +208,8 @@ function GameInfo:logMsg(msg)
 		print(msg)
 	end
 end
+
+--clamp function: http://nova-fusion.com/2011/04/19/cameras-in-love2d-part-1-the-basics/
+function math.clamp(x, min, max)
+    return x < min and min or (x > max and max or x)
+end

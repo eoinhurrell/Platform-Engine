@@ -1,0 +1,48 @@
+Here's the feedback on the overall thesis, I still have to reach chapter 2 !
+
+X Title page … Eoin Hurrell, B.Sc. (hons)
+
+X Check the DCU regulations on margin sizes - I think they are 1" all around and yours look less than that … I could be wrong, I'm reading it from a screen, but its just the kind of thing the Registry would use to send the thesis back to you, in DECEMBER !
+
+After the list of figures but before Chapter 1, add a subsection with your own publications
+
+X page 10, you spelled your name wrong !
+
+X Footnotes seem to reset to numbering at 1 at the start of each chapter, see if you can continue the footnote numbering
+
+X Page 44, table 3.1, you're missing a '|' in the table format definition, rightmost vertical column, and make the Std.Dev column 'c' for centered
+
+X Page 23, footnote 9, you seem to use \url here but not in other places and on page 47 you forgot http:// in footnote 5. Be consistent in using \url in footnotes
+
+X Page 63, table 3.4 has unneeded bars descending, likewise table 3.5 on page 64
+
+X Page 67, 4th line of 3.11.1 after the reference, needs a space
+
+X Throughout … do a global substitution of "et al." to "{\em et al.}"
+
+X Several places you refer to collaborative-filtering (with hyphen) … do a global substitute and replace hyphen with a space
+
+Page 80-ish .. can you add a picture of a person wearing the EEG kit 
+
+X Page 93 section 4.4.1 is empty, and start of 4.5 says "In this paper …" change to "in this section …"
+
+X Page 94, last line, 2 references to same paper, merge into 1, unless one is a mistake
+
+X Page 102, line 3, delete '.' 
+
+X Page 142, start of para .. "From An HCI perspective
+
+X Bibliography .. be consistent in how you refer to authors, use E. Hurrell for example, so fix refs by the following: 
+
+X Gediminas Adomavicius and Alexander Tuzhilin.
+Xavier Amatriain, Neal Lathia, Josep M. Pujol, Haewoon Kwak, and Nuria Oliver.
+… etc., several more
+
+Salton and Buckley ref needs publisher
+
+You'll aslo need to fix captialisation and "force" it into the citation using {{ }} around the field in BiBTeX and in general the BiBFile could do with work to fill in gaps in fields, This can be done AFTER submission but before viva.
+
+Need more details on "E. Hurrell and A.F. Smeaton. An examination of user-focused context-gathering techniques in recommendation interfaces. 2012." and also the next one in FLAIRS .. expand out FLAIRS, give location, date, page numbers
+
+
+Looking good !
