@@ -2,7 +2,8 @@
 --Console here is a special state, drawn over everything else that takes input etc
 Console={}
 
-require = "lib/Input"
+require "lib/Parser"
+require "lib/Input"
 
 function Console:new(g)
 	-- define our parameters here
@@ -14,13 +15,15 @@ function Console:new(g)
 		from = nil,
 		lines={},
 		text = "",
-		capitals = false
+		capitals = false,
+		parser = nil
 	}
 	setmetatable(object, { __index = Console })
 	return object
 end
 
 function Console:init() --when state is first created, run only once
+	--define input
 	self.input = Input:new()
 	--execute command
 	self.input:addButton("press","return",function()if (#self.text>0) then self:parse(self.text)end end)
@@ -34,6 +37,9 @@ function Console:init() --when state is first created, run only once
 
 	--exit console
 	self.input:addButton("press","`",function()self.game:switch(self.from.name)end)
+	
+	--define the parser
+	self.parser = Parser:new(self.game)
 	local height=love.graphics.getHeight()
 	self.height = height/3	
 end
@@ -49,7 +55,7 @@ function Console:draw()
 	self.from:draw()
 	local height=love.graphics.getHeight()
 	local width=love.graphics.getWidth()
-	love.graphics.setColor(126,126,126,126)
+	love.graphics.setColor(126,126,126,240)
 	love.graphics.rectangle("fill",0,0,width,self.height)
 	for k,v in pairs(self.lines) do
 		love.graphics.setColor(unpack(v[2]))
@@ -64,6 +70,7 @@ function Console:focus()
 end
 function Console:keypressed(key)
 	self.input:keypressed(key)
+	--typing, haven't found an easy way to account for this with input
 	if(key=="backspace") then  --delete char
 		self.text=string.sub(self.text,1,#self.text-1) 
 		return 
@@ -121,8 +128,8 @@ function Console:quit()
 end
 
 function Console:parse(command) -- right now does nothing
-	--self:WriteLine(command,255,255,255)
-	self:WriteLine(command,255,255,255)
+	local result = self.parser:parse(command)
+	self:WriteLine(result,255,255,255)	
 	self.text=""
 end
 
@@ -130,4 +137,28 @@ function Console:WriteLine(txt,r,g,b)
    r=r or 255 g=g or 255 b=b or 255
    if(#self.lines>(self.height/16)-2) then table.remove(self.lines,1) end
    table.insert(self.lines,{txt,{r,g,b}})
+end
+
+function Console:command_set(params)
+	-- ["set"] = function (x)	if type(self.action[x[1]]) ~= nil then
+	-- 	self.action[x[1]](x[2])
+	-- else
+	-- 	self:WriteLine("Unknown command:"..x[1],255,255,255)
+	-- end
+end
+
+function Console:command_volume(params)
+	  -- ["volume"] = function (x) y = self.game:setVolume(x) self:WriteLine(y,255,255,255) end,
+end
+
+function Console:command_sound(params)
+	  -- ["sound"] = function (x) y = self.game:setSoundVolume(x) self:WriteLine(y,255,255,255) end,
+end
+
+function Console:command_music(params)
+	  -- ["music"] = function (x) y = self.game:setMusicVolume(x) self:WriteLine(y,255,255,255) end,
+end
+
+function Console:command_health(params)
+	  -- ["health"] = function (x) y = self.game:setHealth(x) end,
 end

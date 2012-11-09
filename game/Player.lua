@@ -6,24 +6,39 @@ Player = {}
 
 -- Constructor
 function Player:new()
-    -- define our parameters here
-    local object = {
-    x = 0,
-    y = 0,
-    width = 0,
-    height = 0,
-    xSpeed = 0,
-    ySpeed = 0,
-    xSpeedMax = 800,
-    ySpeedMax = 800,
-    state = "",
-    jumpSpeed = 0,
-    runSpeed = 0,
-    onFloor = false
-    }
-    setmetatable(object, { __index = Player })
-    return object
+	local object = {
+		anim = nil,
+		x = 0,
+		y = 0,
+		width = 0,
+		height = 0,
+		xSpeed = 0,
+		ySpeed = 0,
+		xSpeedMax = 800,
+		ySpeedMax = 800,
+		state = "",
+		jumpSpeed = 0,
+		runSpeed = 0,
+		hasJumped = false,
+		onFloor = false
+	}
+	setmetatable(object, { __index = Player })
+	return object
 end
+
+function Player:load()
+	self.x = 300
+	self.y = 300
+	self.width = 50
+	self.height = 87
+	self.jumpSpeed = -800
+	self.runSpeed = 500
+	self.hasJumped = false
+	delay = 120
+	self.anim = Sprite:new("assets/player-sprite.png", 50, 87, 4, 8)
+	self.anim:load(delay)
+end
+
 
 -- Movement functions
 function Player:jump()
@@ -42,7 +57,7 @@ function Player:moveLeft()
 end
 
 function Player:stop()
-    self.xSpeed = 0
+	self.xSpeed = 0
 end
 
 -- Do various things when the player hits a tile
@@ -69,55 +84,77 @@ function Player:update(dt, gravity, map)
     self.ySpeed = math.clamp(self.ySpeed, -self.ySpeedMax, self.ySpeedMax)
     
     -- calculate vertical position and adjust if needed
-    local nextY = math.floor(self.y + (self.ySpeed * dt))
-    if self.ySpeed < 0 then -- check upward
-        if not(self:isColliding(map, self.x - halfX, nextY - halfY))
-            and not(self:isColliding(map, self.x + halfX - 1, nextY - halfY)) then
-            -- no collision, move normally
-            self.y = nextY
-            self.onFloor = false
-        else
-            -- collision, move to nearest tile border
-            self.y = nextY + map.tileHeight - ((nextY - halfY) % map.tileHeight)
-            self:collide("ceiling")
-        end
-    elseif self.ySpeed > 0 then -- check downward
-        if not(self:isColliding(map, self.x - halfX, nextY + halfY))
-            and not(self:isColliding(map, self.x + halfX - 1, nextY + halfY)) then
-            -- no collision, move normally
-            self.y = nextY
-            self.onFloor = false
-        else
-            -- collision, move to nearest tile border
-            self.y = nextY - ((nextY + halfY) % map.tileHeight)
-            self:collide("floor")
-        end
-    end
+	local nextY = math.floor(self.y + (self.ySpeed * dt))
+	if self.ySpeed < 0 then -- check upward
+		if not(self:isColliding(map, self.x - halfX, nextY - halfY))
+			and not(self:isColliding(map, self.x + halfX - 1, nextY - halfY)) then
+			-- no collision, move normally
+			self.y = nextY
+			self.onFloor = false
+		else
+			-- collision, move to nearest tile border
+			self.y = nextY + map.tileHeight - ((nextY - halfY) % map.tileHeight)
+			self:collide("ceiling")
+		end
+	elseif self.ySpeed > 0 then -- check downward
+		if not(self:isColliding(map, self.x - halfX, nextY + halfY))
+			and not(self:isColliding(map, self.x + halfX - 1, nextY + halfY)) then
+			-- no collision, move normally
+			self.y = nextY
+			self.onFloor = false
+		else
+			-- collision, move to nearest tile border
+			self.y = nextY - ((nextY + halfY) % map.tileHeight)
+			self:collide("floor")
+		end
+	end
+	
+	-- calculate horizontal position and adjust if needed
+	local nextX = math.floor(self.x + (self.xSpeed * dt))
+	if self.xSpeed > 0 then -- check right
+		if not(self:isColliding(map, nextX + halfX, self.y - halfY))
+			and not(self:isColliding(map, nextX + halfX, self.y + halfY - 1)) then
+			-- no collision
+			self.x = nextX
+		else
+			-- collision, move to nearest tile
+			self.x = nextX - ((nextX + halfX) % map.tileWidth)
+		end
+	elseif self.xSpeed < 0 then -- check left
+		if not(self:isColliding(map, nextX - halfX, self.y - halfY))
+			and not(self:isColliding(map, nextX - halfX, self.y + halfY - 1)) then
+			-- no collision
+			self.x = nextX
+		else
+			-- collision, move to nearest tile
+			self.x = nextX + map.tileWidth - ((nextX - halfX) % map.tileWidth)
+		end
+	end
+	
+	-- update the player's state
+	self.state = self:getState()
+	-- update the sprite self.anim
+	if (self.state == "stand") then
+		self.anim:switch(1, 4, 200)
+	end
+	if (self.state == "moveRight") or (self.state == "moveLeft") then
+		self.anim:switch(2, 4, 120)
+	end
+	if (self.state == "jump") or (self.state == "fall") then
+		self.anim:reset()
+		self.anim:switch(3, 1, 300)
+	end
+	if self.xSpeed < 0  then
+		self.anim:flip(true,false)
+	elseif self.xSpeed > 0  then
+		self.anim:flip(false,false)		
+	end
+	self.anim:update(dt)
+end
 
-    -- calculate horizontal position and adjust if needed
-    local nextX = math.floor(self.x + (self.xSpeed * dt))
-    if self.xSpeed > 0 then -- check right
-        if not(self:isColliding(map, nextX + halfX, self.y - halfY))
-            and not(self:isColliding(map, nextX + halfX, self.y + halfY - 1)) then
-            -- no collision
-            self.x = nextX
-        else
-            -- collision, move to nearest tile
-            self.x = nextX - ((nextX + halfX) % map.tileWidth)
-        end
-    elseif self.xSpeed < 0 then -- check left
-        if not(self:isColliding(map, nextX - halfX, self.y - halfY))
-            and not(self:isColliding(map, nextX - halfX, self.y + halfY - 1)) then
-            -- no collision
-            self.x = nextX
-        else
-            -- collision, move to nearest tile
-            self.x = nextX + map.tileWidth - ((nextX - halfX) % map.tileWidth)
-        end
-    end
-    
-    -- update the player's state
-    self.state = self:getState()
+function Player:draw()
+	local x, y = math.floor(self.x), math.floor(self.y)	
+	self.anim:draw(x - self.width / 2, y - self.height / 2)
 end
 
 -- returns true if the coordinates given intersect a map tile

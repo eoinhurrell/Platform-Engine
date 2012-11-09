@@ -1,6 +1,5 @@
 Achievements = {}
-
-notification_time = 200
+notification_time = 2
 --based on https://github.com/LiquidHelium/LoveAchievements/wiki/Additional-Config-Options
 --[[ if needed, table copy function (unsure about the reference-y bits of copying to justUnlocked etc)
 function table.copy(t)
@@ -13,16 +12,19 @@ end
 --]]
 -- Constructor
 function Achievements:new()
-    -- define our parameters here
-    local object = {
-       achieves = {}, -- id = {name, desc, image, unlocked}
-       justUnlocked = nil,  -- or most recent achievement
-       notification = nil,  --achievement being used
-       notifying = false,
-       notifyTime = 2 --ms
-    }
-    setmetatable(object, { __index = Achievements })
-    return object
+	-- define our parameters here
+	local object = {
+		achieves = {}, -- id = {name, desc, image, unlocked}
+		justUnlocked = nil,  -- most recent achievement
+		notification = nil,  --achievement being used
+		notifying = false,
+		notify_time = 2, --ms
+		notif_width = 160,
+		notif_height= 100,
+		slide_time = 0.2
+	}
+	setmetatable(object, { __index = Achievements })
+	return object
 end
  
 function Achievements:register(id, name, description, image)
@@ -42,10 +44,12 @@ end
 -- Set whether to notify on last achievement, and for how long.
 function Achievements:update(dt)
 	if self.notifying then
-		self.notifyTime = self.notifyTime - dt
-		if self.notifyTime <= 0 then
+		self.notify_time = self.notify_time - dt
+		--if self.slide_time = self.slide_time - dt 
+		if self.notify_time <= 0 then
 			self.notifying = false
-			self.notifyTime = notification_time
+			self.notify_time = notification_time
+			self.slide_time = 0.2
 		end
 	end
 	if self.justUnlocked ~= nil then
@@ -59,13 +63,18 @@ end
 function Achievements:draw()
 	if self.notifying then
 		--display achievement info
-		local height=love.graphics.getHeight()
-		local width=love.graphics.getWidth()
-		love.graphics.setColor(126,126,126)
-		love.graphics.rectangle("fill",width-160,height-100,160,100)
-		love.graphics.setColor(0,0,0)
-		love.graphics.print(self.notification.name,width-110,height-70)
-		love.graphics.print(self.notification.desc,width-110,height-50)
-		love.graphics.print(self.notification.img,width-110,height-30)
+		self:display()
 	end
+end
+
+function Achievements:display()
+	local height=love.graphics.getHeight()
+	local width=love.graphics.getWidth()
+	love.graphics.setColor(126,126,126)
+	love.graphics.rectangle("fill",width-160,height-100,160,100)
+	love.graphics.setColor(0,0,0)
+	love.graphics.print(self.notification.name,width-110,height-70)
+	love.graphics.print(self.notification.desc,width-110,height-50)
+	love.graphics.print(self.notification.img,width-110,height-30)
+	love.graphics.setColor({255,255,255})
 end

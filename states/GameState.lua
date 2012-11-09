@@ -4,8 +4,9 @@ l = require "AdvTiledLoader/Loader"
 require "lib/Input"
 require "lib/Camera"
 require "lib/Sprite"
-require "game/Player"
 require "game/Hud"
+require "game/Player"
+require "game/Coin"
 
 -- Constructor
 function GameState:new(g)
@@ -15,13 +16,13 @@ function GameState:new(g)
 		name = "level",
 		p = Player:new(),
 		input = Input:new(),
-		anim = nil,
+		coins = {},
 		hud = nil,
 		loader = l,
 		map = nil,
-		--temp level width variable
-		width = 400,
-		height = 800,
+		--screen resolution
+		width = 800,
+		height = 600,
 		gravity = 1800,
 		yFloor = 500,	
 		playerColor = {255,0,128},
@@ -40,26 +41,29 @@ function GameState:init() --when state is first created, run only once
 	self.map = self.loader.load("test.tmx")
 	self.map:setDrawRange(0, 0, self.map.width * self.map.tileWidth, self.map.height * self.map.tileHeight)
 	--hud setup
-	self.hud = Hud:new(self.game)
+	self.hud = Hud:new(self.game,self)
 	--player setup
-	--self.p:load()
-	self.p.x = 300
-   self.p.y = 300
-   self.p.width = 32
-   self.p.height = 32
-   self.p.jumpSpeed = -800
-   self.p.runSpeed = 500
-   self.p.hasJumped = false
-   delay = 120
-	self.anim = Sprite:new("assets/robosprites.png", 32, 32, 4, 4)
-   self.anim:load(delay)
-
-   
-   gravity = 1800
+	self.p:load()
+	
+	--level setup
+	-- Place random coins around the map
+	math.randomseed(os.time())
+	numCoins = 25
+	for i = 1, numCoins do
+		local coinCollides = true
+		while coinCollides do -- try to place a coin on a random spot around the map
+			local coinX = math.random(1, self.map.width - 1) * self.map.tileWidth + self.map.tileWidth / 2
+			local coinY = math.random(1, self.map.height - 1) * self.map.tileHeight + self.map.tileHeight / 2
+			self.coins[i] = Coin:new(coinX, coinY)
+			-- if tile is occupied, try again
+			coinCollides = self.coins[i]:isColliding(self.map)
+		end
+	end
 	
 	--camera setup
 	-- restrict the camera
 	camera:setBounds(0, 0, self.map.width * self.map.tileWidth - self.width, self.map.height * self.map.tileHeight - self.height)
+	
 	--inputs
 	--player movement
 	self.input:addButton("hold","left",function()self.p:moveLeft()end)
@@ -73,7 +77,7 @@ function GameState:init() --when state is first created, run only once
 	self.input:addButton("press","`",function()self.game:switch("console")end)
 	--temp debug stuff
 	self.input:addButton("press","z",function()self.game.achievements:unlock("001")end)
-end 
+end
 function GameState:leave()
 		self.p:stop()
 end --when state is no longer active
@@ -84,26 +88,16 @@ function GameState:update(dt)
 	self.input:update(dt)	
 	-- update the player's position
 	self.p:update(dt, self.gravity,self.map)
-	-- update the sprite self.anim
-	if (self.p.state == "stand") then
-		self.anim:switch(1, 4, 200)
+	-- update level
+	-- update coin animations and check for player collisions
+	for i in ipairs(self.coins) do
+		self.coins[i]:update(dt)
+		-- if player collides, add to score and remove coin
+		if self.coins[i]:touchesObject(self.p) then
+			self.game:addScore(100)
+			table.remove(self.coins, i)
+		end
 	end
-	if (self.p.state == "moveRight") or (self.p.state == "moveLeft") then
-		self.anim:switch(2, 4, 120)
-	end
-	if (self.p.state == "jump") or (self.p.state == "fall") then
-		self.anim:reset()
-		self.anim:switch(3, 1, 300)
-	end
-
-	self.anim:update(dt)
-	
-	-- stop the player when they hit the borders
-	-- self.p.x = math.clamp(self.p.x, 0, self.width * 2 - self.p.width)
-	-- if self.p.y < 0 then self.p.y = 0 end
-	-- if self.p.y > self.yFloor - self.p.height then
-	-- 	self.p:land(self.yFloor)
-	-- end
 	-- center the camera on the player
 	camera:setPosition(math.floor(self.p.x - self.width / 2), math.floor(self.p.y - self.height / 2))
 	self.game.achievements:update(dt)	
@@ -114,21 +108,13 @@ function GameState:draw()
 	-- draw the map
 	self.map:draw()
 	-- draw the player
-	--self.p:draw()
-   local x, y = math.floor(self.p.x), math.floor(self.p.y)	
-	self.anim:draw(x - self.p.width / 2, y - self.p.height / 2)
+	self.p:draw()
+	--draw level details
+	for i in ipairs(self.coins) do
+		self.coins[i]:draw()
+	end
 	--leave relative camera mode
 	camera:unset()
-	if game:isDebug() then
-		local tileX = math.floor(self.p.x / self.map.tileWidth)
-		local tileY = math.floor(self.p.y / self.map.tileHeight)
-		local height=love.graphics.getHeight()
-		self.grap.setColor({0,0,255})
-		love.graphics.print("Player coordinates: ("..self.p.x..","..self.p.y..")", 5, height-36)
-		love.graphics.print("Current state: "..self.p.state, 5, height-26)
-		love.graphics.print("Current tile: ("..tileX..", "..tileY..")", 5, height-16)
-		self.grap.setColor({0,0,0})		
-	end
 	self.hud:draw()
 	self.game.achievements:draw()
 end

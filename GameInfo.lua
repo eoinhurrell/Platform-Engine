@@ -1,5 +1,4 @@
 GameInfo = {}
-
 require "states/IntroState"
 require "states/LoadState"
 require "states/MenuState"
@@ -30,7 +29,7 @@ function GameInfo:new()
 		
 		--state info
 		current_state = nil,
-		state = "intro",
+		state = "level",
 		state_stack = {},
 		gamestates = {}
 	}
@@ -47,6 +46,8 @@ function GameInfo:load()
 	self.gamestates["pause"]  = PauseState:new(self)
 	self.gamestates["menus"]  = MenuState:new(self)
 	self.current_state = self.gamestates[self.state]
+	self.current_state:init()
+	self.current_state.init = self.current_state.enter--__NULL__ --Can't be called again?
 	
 	self.achievements:register("001","ZZZ","Caught some z!","assets/player.png")
 	--s = "Loaded states in "..(love.timer.getMicroTime()-t).."seconds." NIL APPARENTLY
@@ -66,7 +67,7 @@ end
 --FILE OPERATIONS
 --Loads the list of levels, playingState will handle the actual loading of a level
 function GameInfo:loadLevels()
-	self.level_files[1] = "test.xml"
+	self.level_files[1] = "level_list.xml"
 end
 
 function GameInfo:loadSettings()
@@ -88,11 +89,17 @@ function GameInfo:getHealth()
 end
 
 function GameInfo:setHealth(amount)
-	self.health = amount
+	if tonumber(amount) ~= "nil" then
+		if tonumber(amount) <= 100 then
+			self.health = amount
+		end
+	end
 end
 
 function GameInfo:takeDamage(damage)
-	self.health = self.health - damage
+	if tonumber(damage) ~= "nil" then
+		self.health = self.health - damage
+	end
 end
 
 function GameInfo:isAlive()
@@ -105,7 +112,9 @@ function GameInfo:getScore()
 end
 
 function GameInfo:addScore(amount)
-	self.score = self.score + amount
+	--if type(amount) == "number" then	
+		self.score = self.score + amount
+	--end
 end
 
 function GameInfo:getLevel()
@@ -167,7 +176,13 @@ end
 
 --Accessors for console accessible stuff that needs to be safe
 function GameInfo:setGravity(gravity)
-	self.gravity = gravity
+	if tonumber(gravity) ~= "nil" then
+		self.gravity = gravity
+	end
+end
+
+function GameInfo:getGravity()
+	return self.gravity
 end
 
 function GameInfo:resetGravity()
@@ -175,7 +190,23 @@ function GameInfo:resetGravity()
 end
 
 function GameInfo:setGod(is_god)
-	self.god = is_god
+	--if type(is_god) == "boolean" then	
+		self.god = is_god
+	--end
+end
+
+function GameInfo:isGod()
+	return self.god
+end
+
+function GameInfo:getVolume()
+	return self.volume_sound
+end
+
+function GameInfo:setVolume(volume)
+	self.volume_sound = volume
+	self.volume_music = volume
+	return "Volume is now " .. self.volume_sound
 end
 
 function GameInfo:getSoundVolume()
@@ -183,7 +214,7 @@ function GameInfo:getSoundVolume()
 end
 
 function GameInfo:setSoundVolume(volume)
-	self.volume_sound = 100
+	self.volume_sound = volume
 end
 
 function GameInfo:getMusicVolume()
