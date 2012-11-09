@@ -19,11 +19,20 @@ function Hud:update(dt, gravity)
 end
 
 function Hud:draw()
+	self:Background()
 	self:Health()
 	self:Score()
 	if self.game:isDebug() then
 		self:Debug()
 	end
+end
+
+function Hud:Background()
+	local width = love.graphics.getWidth()
+	local height = love.graphics.getHeight()
+	love.graphics.setColor(205,205,205)
+	love.graphics.rectangle('fill', 0,0,width,45)
+	love.graphics.setColor(255,255,255)
 end
 
 function Hud:Health()
@@ -34,6 +43,7 @@ function Hud:Health()
    love.graphics.rectangle('fill', 4,4,health,20)
    love.graphics.setColor(255,255,255)
 end
+
 function Hud:Score()
 	local score = self.game:getScore()
 	love.graphics.setColor({0,0,0})	

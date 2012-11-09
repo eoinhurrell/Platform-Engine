@@ -61,6 +61,7 @@ function GameState:init() --when state is first created, run only once
 	end
 	
 	--camera setup
+	--camera:scale(0.5,0.5)
 	-- restrict the camera
 	camera:setBounds(0, 0, self.map.width * self.map.tileWidth - self.width, self.map.height * self.map.tileHeight - self.height)
 	
@@ -70,6 +71,8 @@ function GameState:init() --when state is first created, run only once
 	self.input:addButton("release","left",function()self.p:stop()end)
 	self.input:addButton("hold","right",function()self.p:moveRight()end)
 	self.input:addButton("release","right",function()self.p:stop()end)
+	self.input:addButton("hold","z",function()if camera.scaleX < 1.5 then camera:scale(1.1,1.1) end end)
+	self.input:addButton("release","z",function()camera.scaleX = 1 camera.scaleY= 1 end)	
 	self.input:addButton("press","x",function()self.p:jump()end)
 	--pause menu
 	self.input:addButton("press","escape",function()self.game:switch("pause")end)
@@ -99,7 +102,8 @@ function GameState:update(dt)
 		end
 	end
 	-- center the camera on the player
-	camera:setPosition(math.floor(self.p.x - self.width / 2), math.floor(self.p.y - self.height / 2))
+	--camera:setPosition(math.floor(self.p.x - self.width / 2), math.floor(self.p.y - self.height / 2))
+	camera:focusOn(math.floor(self.p.x), math.floor(self.p.y))
 	self.game.achievements:update(dt)	
 end
 function GameState:draw()
@@ -118,7 +122,9 @@ function GameState:draw()
 	self.hud:draw()
 	self.game.achievements:draw()
 end
-function GameState:focus()end
+function GameState:focus()
+	self.input:addButton("press","escape",function()self.game:switch("pause")end)
+end
 function GameState:keypressed(key)
 	self.input:keypressed(key)
 end

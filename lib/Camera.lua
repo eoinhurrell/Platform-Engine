@@ -39,8 +39,8 @@ function camera:setPosition(x, y)
 end
 
 function camera:focusOn(x,y)
-   self.x = x - (love.graphics.getWidth()/2)
-   self.y = y - (love.graphics.getHeight()/2)
+   self.x = x - (love.graphics.getWidth()/2)*self.scaleX
+   self.y = y - (love.graphics.getHeight()/2)*self.scaleY
 end
 
 function camera:setScale(sx, sy)

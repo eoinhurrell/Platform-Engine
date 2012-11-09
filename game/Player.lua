@@ -28,14 +28,15 @@ end
 
 function Player:load()
 	self.x = 300
-	self.y = 300
-	self.width = 50
-	self.height = 87
+	self.y = 0
+	self.width = 18
+	self.height = 32
 	self.jumpSpeed = -800
 	self.runSpeed = 500
 	self.hasJumped = false
 	delay = 120
-	self.anim = Sprite:new("assets/player-sprite.png", 50, 87, 4, 8)
+	self.anim = Sprite:new("assets/player-sprite.png", 18, 32, 4, 8)
+	--self.anim = Sprite:new("assets/robosprites.png", 32, 32, 4, 4)
 	self.anim:load(delay)
 end
 
