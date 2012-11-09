@@ -3,9 +3,14 @@
  <tileset firstgid="1" name="Tiles" tilewidth="32" tileheight="32">
   <image source="../assets/pixel-tileset-dirt.png" trans="ffffff" width="192" height="96"/>
  </tileset>
+ <layer name="Sky" width="55" height="35">
+  <data encoding="base64" compression="zlib">
+   eJztw8EJAAAMA6F7Zf+Ru0dRcNVUVVVVVVVVffkAJUUtHw==
+  </data>
+ </layer>
  <layer name="Walls" width="55" height="35">
   <data encoding="base64" compression="zlib">
-   eJztmNEOgyAMRVnYVF5M9v8/uz2whNyAhVGqxZ7kRuFBPVYUWdycLDEzYm46MTedmJtOuN1ekDOxuumEclshvTxjJLhz3TRjbn34GGmk6rYJnAORdJOunY03ndS44feb4xvOATVvHVG32vfi6Ln0mc/kyP+F4PSMN/x3ou6HJrdWpNw8RIJZ6xbcfG4BcgW33jUWdBrlJj22Sl5Xqds/HDlxuuXWP0atidQ4cbg9kiBcc84Wl5xbeo0e2qW+X7YkK9Eu9fVcP+W2f/NOssMW93PtUo6O0XKsmvPn+j7OTQl1
+   eJztlw0LgyAQhm05Qohg///PTiFBjtOdeprnfOBlZaA987NTzcl5Z0aW27hom5fNG3km3S3FcpOJBDc/p8Jg8wvC7Ra+B6X9lkjot1L+2c2NseMOxxjTTPVQGK3fMPfU/pxiNDdOllsdbkztjdvA6NVvR4c2IL3cKOsjPH/UrqdrvsmE4hbu31x7OAe/9r0W/UY9e7T+j54ck6XnDQpGyZlvuWuoJLdcerk98b06a78ZNZ+bARnBrXbMQqdWbv7M79JjbsW8Rum3ElJOnG4bUqYr64xBceJw24JAuL7Xclwwt/Add3AfK/M5Es9GyGXzCXKBX3iN3ceSqiOnLkr7WNkXKS4J9g==
   </data>
  </layer>
 </map>

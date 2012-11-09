@@ -7,6 +7,7 @@ require "lib/Sprite"
 require "game/Hud"
 require "game/Player"
 require "game/Coin"
+require "game/Bomb"
 
 -- Constructor
 function GameState:new(g)
@@ -24,9 +25,6 @@ function GameState:new(g)
 		width = 800,
 		height = 600,
 		gravity = 1800,
-		yFloor = 500,	
-		playerColor = {255,0,128},
-		groundColor = {25,200,25},
 		grap = love.graphics
 	}
 	setmetatable(object, { __index = GameState })
@@ -54,7 +52,7 @@ function GameState:init() --when state is first created, run only once
 		while coinCollides do -- try to place a coin on a random spot around the map
 			local coinX = math.random(1, self.map.width - 1) * self.map.tileWidth + self.map.tileWidth / 2
 			local coinY = math.random(1, self.map.height - 1) * self.map.tileHeight + self.map.tileHeight / 2
-			self.coins[i] = Coin:new(coinX, coinY)
+			self.coins[i] = Bomb:new(coinX, coinY)
 			-- if tile is occupied, try again
 			coinCollides = self.coins[i]:isColliding(self.map)
 		end
@@ -97,7 +95,8 @@ function GameState:update(dt)
 		self.coins[i]:update(dt)
 		-- if player collides, add to score and remove coin
 		if self.coins[i]:touchesObject(self.p) then
-			self.game:addScore(100)
+			--self.game:addScore(100)
+			self.game:takeDamage(50)
 			table.remove(self.coins, i)
 		end
 	end
@@ -109,8 +108,15 @@ end
 function GameState:draw()
 	--go into relative camera mode
 	camera:set()
-	-- draw the map
+	-- draw the map, limiting it to preserve resources
+	--self.map:autoDrawRange(-300,-320,1,20)
+	local draw_x = camera.x-256
+	local draw_y = camera.y-256
+	local draw_w = (love.graphics.getWidth()*camera.scaleX)+256
+	local draw_h = (love.graphics.getHeight()*camera.scaleY)+ 256
+	self.map:setDrawRange(draw_x,draw_y,draw_w,draw_h)
 	self.map:draw()
+	
 	-- draw the player
 	self.p:draw()
 	--draw level details

@@ -1,40 +1,40 @@
-Coin = {}
+Bomb = {}
 
 -- Constructor
-function Coin:new(loc_x,loc_y)
+function Bomb:new(loc_x,loc_y)
 	local object = {
-		anim = Sprite:new("assets/coin.png", 32, 32, 2, 1),
+		anim = Sprite:new("assets/bomb.png", 32, 32, 4, 1),
 		x = loc_x,
 		y = loc_y,
 		width = 32,
 		height = 32,
-		frame = math.random(1,2),
+		frame = math.random(1,4),
 		delay = 200,
 		delta = 0,
 		maxDelta = 40
 	}
 	object.anim:load(object.delay)
-	setmetatable(object, { __index = Coin })
+	setmetatable(object, { __index = Bomb })
 	return object
 end
 
-function Coin:update(dt)
+function Bomb:update(dt)
 	self.delta = self.delta + self.delay *dt
 	
 	--loop
 	if self.delta >= self.maxDelta then
-		self.frame = self.frame % 2 + 1
+		self.frame = self.frame % 4 + 1
 		self.delta = 0
 	end
 end
 
-function Coin:draw()
+function Bomb:draw()
 	self.anim:start(self.frame)
 	self.anim:draw(self.x - self.width / 2, self.y - self.height / 2)
 end
 
 -- returns true if the tile given is empty
-function Coin:isColliding(map)
+function Bomb:isColliding(map)
 	--tile tile coords
 	local tile_x = math.floor(self.x / map.tileWidth)
 	local tile_y = math.floor(self.y / map.tileHeight)
@@ -46,8 +46,8 @@ function Coin:isColliding(map)
 	return not(tile == nil)
 end
 
--- returns true if the object intersects this coin
-function Coin:touchesObject(object)
+-- returns true if the object intersects this Bomb
+function Bomb:touchesObject(object)
 	local cx1 = self.x - self.width / 2
 	local cx2 = self.x + self.width / 2 - 1
 	local cy1 = self.y - self.height / 2
