@@ -35,9 +35,7 @@ function GameState:init() --when state is first created, run only once
 	self.width=love.graphics.getWidth()
 	--map setup
 	-- Load up the map
-	self.loader.path = "maps/"
-	self.map = self.loader.load("test.tmx")
-	self.map:setDrawRange(0, 0, self.map.width * self.map.tileWidth, self.map.height * self.map.tileHeight)
+	self:loadLevel()
 	--hud setup
 	self.hud = Hud:new(self.game,self)
 	--player setup
@@ -70,8 +68,11 @@ function GameState:init() --when state is first created, run only once
 	self.input:addButton("hold","right",function()self.p:moveRight()end)
 	self.input:addButton("release","right",function()self.p:stop()end)
 	self.input:addButton("hold","z",function()if camera.scaleX < 1.5 then camera:scale(1.1,1.1) end end)
-	self.input:addButton("release","z",function()camera.scaleX = 1 camera.scaleY= 1 end)	
+	self.input:addButton("release","z",function()camera.scaleX = 1 camera.scaleY= 1 end)
+	self.input:addButton("hold","lshift",function() self.p:setRun(true) end)
+	self.input:addButton("release","lshift",function() self.p:setRun(false) end)
 	self.input:addButton("press","x",function()self.p:jump()end)
+	self.input:addButton("press","c",function()self:saveScreen()end)
 	--pause menu
 	self.input:addButton("press","escape",function()self.game:switch("pause")end)
 	--console
@@ -84,9 +85,15 @@ function GameState:leave()
 end --when state is no longer active
 function GameState:enter(from, ...) --when state comes back from pause (or is transitioned into)
 end
-function GameState:finish()end --when state is finished
-function GameState:update(dt)
-	self.input:update(dt)	
+function GameState:finish()  --when state is finished
+end
+function GameState:update(dt) --update loop
+	--check if game over
+	if not self.game:isAlive() then
+		--game over 'press any key to retry'
+		--love.event.quit()
+	end
+	self.input:update(dt)
 	-- update the player's position
 	self.p:update(dt, self.gravity,self.map)
 	-- update level
@@ -95,8 +102,7 @@ function GameState:update(dt)
 		self.coins[i]:update(dt)
 		-- if player collides, add to score and remove coin
 		if self.coins[i]:touchesObject(self.p) then
-			--self.game:addScore(100)
-			self.game:takeDamage(50)
+			self.game:addScore(100)
 			table.remove(self.coins, i)
 		end
 	end
@@ -113,7 +119,7 @@ function GameState:draw()
 	local draw_x = camera.x-256
 	local draw_y = camera.y-256
 	local draw_w = (love.graphics.getWidth()*camera.scaleX)+256
-	local draw_h = (love.graphics.getHeight()*camera.scaleY)+ 256
+	local draw_h = (love.graphics.getHeight()*camera.scaleY)+256
 	self.map:setDrawRange(draw_x,draw_y,draw_w,draw_h)
 	self.map:draw()
 	
@@ -129,7 +135,7 @@ function GameState:draw()
 	self.game.achievements:draw()
 end
 function GameState:focus()
-	self.input:addButton("press","escape",function()self.game:switch("pause")end)
+	self.game:switch("pause")
 end
 function GameState:keypressed(key)
 	self.input:keypressed(key)
@@ -147,12 +153,25 @@ function GameState:joystickpressed()
 end
 function GameState:joystickreleased()
 end
-function GameState:quit()end
+function GameState:quit()
+end
 
 function GameState:loadLevel()
 	if self.game.debug then
 		--print "Loading level :" .. self.game.level 
 		--print "	level file  :" .. self.game.level_files[self.game.level]
 	end
+	self.loader.path = "maps/"
+	self.map = self.loader.load("test.tmx")
+	self.map:setDrawRange(0, 0, self.map.width * self.map.tileWidth, self.map.height * self.map.tileHeight)
+	--To change the parallax speed you only need to set the values TileLayer.parallaxX and TileLayer.parallaxY. 1 equals 100% speed so if parallaxX was set to 2 then horizontal scrolling speed would be doubled.
+	self.map.layers["Background"].parallaxX = 2
+	self.map.drawObjects = false
+end
+
+function GameState:saveScreen()
+	local s = love.graphics.newScreenshot() --ImageData
+	s:encode("pic.png")
+	error( "Screenshot: " .. love.filesystem.getSaveDirectory())
 end
 

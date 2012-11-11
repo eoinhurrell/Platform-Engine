@@ -17,10 +17,21 @@ function Player:new()
 		xSpeedMax = 800,
 		ySpeedMax = 800,
 		state = "",
+		state_anims = nil,
 		jumpSpeed = 0,
-		runSpeed = 0,
+		moveSpeed = 0,
+		isRunning = false,
 		hasJumped = false,
-		onFloor = false
+		onFloor = false,
+	}
+	object.state_anims = {
+		["stand"]     = function() object.anim:switch(1, 4, 200) end,
+		["moveRight"] = function() object.anim:switch(2, 4, 120) end,
+		["moveLeft"]  = function() object.anim:switch(2, 4, 120) end,
+		["jump"]      = function() object.anim:reset() object.anim:switch(3, 1, 300) end,
+		["fall"]      = function() object.anim:reset() object.anim:switch(3, 2, 800) end, --need something here to count fall damage
+		["hang"]      = function() object.anim:switch(4, 2, 200) end,
+		[""]          = function() object.anim:switch(4, 2, 200) end
 	}
 	setmetatable(object, { __index = Player })
 	return object
@@ -32,11 +43,15 @@ function Player:load()
 	self.width = 36
 	self.height = 64
 	self.jumpSpeed = -800
-	self.runSpeed = 500
+	self.moveSpeed = 500
 	self.hasJumped = false
 	delay = 120
 	self.anim = Sprite:new("assets/player-sprite.png", 36, 64, 4, 8)
-	--self.anim = Sprite:new("assets/robosprites.png", 32, 32, 4, 4)
+	--sprite layout
+	--idle
+	--walking
+	--jumping
+	--hanging
 	self.anim:load(delay)
 end
 
@@ -49,12 +64,23 @@ function Player:jump()
     end
 end
 
+function Player:setRun(isRun)
+	self.isRunning = isRun
+	if self.isRunning then
+		self.jumpSpeed = -1000
+		self.moveSpeed = 800
+	else
+		self.jumpSpeed = -800
+		self.moveSpeed = 500
+	end
+end
+
 function Player:moveRight()
-    self.xSpeed = self.runSpeed
+    self.xSpeed = self.moveSpeed
 end
 
 function Player:moveLeft()
-    self.xSpeed = -1 * (self.runSpeed)
+    self.xSpeed = -1 * (self.moveSpeed)
 end
 
 function Player:stop()
@@ -95,6 +121,7 @@ function Player:update(dt, gravity, map)
 		else
 			-- collision, move to nearest tile border
 			self.y = nextY + map.tileHeight - ((nextY - halfY) % map.tileHeight)
+			--here we could check for pipes or other things he could hang from
 			self:collide("ceiling")
 		end
 	elseif self.ySpeed > 0 then -- check downward
@@ -119,6 +146,7 @@ function Player:update(dt, gravity, map)
 			self.x = nextX
 		else
 			-- collision, move to nearest tile
+			-- here he's collided with a wall, if it is 'hangable' and if he's not on the ground the collide "hang_right"
 			self.x = nextX - ((nextX + halfX) % map.tileWidth)
 		end
 	elseif self.xSpeed < 0 then -- check left
@@ -128,6 +156,7 @@ function Player:update(dt, gravity, map)
 			self.x = nextX
 		else
 			-- collision, move to nearest tile
+			-- here he's collided with a wall, if it is 'hangable' and if he's not on the ground the collide "hang_left"
 			self.x = nextX + map.tileWidth - ((nextX - halfX) % map.tileWidth)
 		end
 	end
@@ -135,20 +164,11 @@ function Player:update(dt, gravity, map)
 	-- update the player's state
 	self.state = self:getState()
 	-- update the sprite self.anim
-	if (self.state == "stand") then
-		self.anim:switch(1, 4, 200)
-	end
-	if (self.state == "moveRight") or (self.state == "moveLeft") then
-		self.anim:switch(2, 4, 120)
-	end
-	if (self.state == "jump") or (self.state == "fall") then
-		self.anim:reset()
-		self.anim:switch(3, 1, 300)
-	end
+	self.state_anims[self.state]()
 	if self.xSpeed < 0  then
 		self.anim:flip(true,false)
 	elseif self.xSpeed > 0  then
-		self.anim:flip(false,false)		
+		self.anim:flip(false,false)
 	end
 	self.anim:update(dt)
 end
