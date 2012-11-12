@@ -25,6 +25,7 @@ function PauseState:doAction()
 end
 
 function PauseState:init()
+	love.graphics.setNewFont("assets/DroidSans.ttf", 12)
 	self.input = Input:new()
 	self.input:addButton("press","up",function()self.highlighted = self.highlighted - 1 if self.highlighted < 1 then self.hightlighted = #self.action_text end end)
 	self.input:addButton("press","down",function()self.highlighted = self.highlighted + 1 if self.highlighted > #self.action_text then self.hightlighted = 1 end end)

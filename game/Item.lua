@@ -4,7 +4,7 @@ Item = {}
 function Item:new(item_name,loc_x,loc_y)
 	local object = {
 		name = item_name,
-		anim = nil, --Sprite:new("assets/Item.png", 32, 32, 2, 1),
+		anim = Sprite:new("assets/items/"..item_name..".png", 32, 32, 4, 1),
 		x = loc_x,
 		y = loc_y,
 		width = 32,
@@ -12,7 +12,7 @@ function Item:new(item_name,loc_x,loc_y)
 		frame = math.random(1,2),
 		delay = 200,
 		delta = 0,
-		maxDelta = 40
+		maxDelta = 40,
 		effects = {
 			["health"] = 0,
 			["damage"] = 0,
@@ -23,6 +23,20 @@ function Item:new(item_name,loc_x,loc_y)
 	object.anim:load(object.delay)
 	setmetatable(object, { __index = Item })
 	return object
+end
+
+function Item:setEffect(effect_name,effect_value)
+	if self.effects[effect_name] ~= nil then
+		self.effects[effect_name] = effect_value
+	end
+end
+
+function Item:getEffect(effect_name)
+	return self.effects[effect_name]
+end
+
+function Item:getEffects()
+	return self.effects
 end
 
 function Item:update(dt)

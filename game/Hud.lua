@@ -5,7 +5,7 @@ function Hud:new(g,l)
 	-- define our parameters here
 	local object = {
 		game = g,
-		level = l
+		state = l
 	}
 	setmetatable(object, { __index = Hud })
 	return object
@@ -52,13 +52,13 @@ function Hud:Score()
 end
 
 function Hud:Debug()
-	local tileX = math.floor(self.level.p.x / self.level.map.tileWidth)
-	local tileY = math.floor(self.level.p.y / self.level.map.tileHeight)
+	local tileX = math.floor(self.state.p.x / self.state.map.tileWidth)
+	local tileY = math.floor(self.state.p.y / self.state.map.tileHeight)
 	local height=love.graphics.getHeight()
 	debug_info ={
 		"FPS: " .. love.timer.getFPS(),
-		"Player coordinates: ("..self.level.p.x..","..self.level.p.y..")",
-		"Current state: "..self.level.p.state,
+		"Player coordinates: ("..self.state.p.x..","..self.state.p.y..")",
+		"Current state: "..self.state.p.state,
 		"Current tile: ("..tileX..", "..tileY..")"
 	}
 	--colour for messages

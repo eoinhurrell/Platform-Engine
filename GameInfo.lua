@@ -127,16 +127,6 @@ end
 function GameInfo:setLevel(lvl)
 	self.level = lvl
 end
-
---deferred loading
-function GameInfo:defferedLoading()
-	self:setState("loading")
-	self.gamestates["loading"]:waitFor("menus")
-
-	-- self:addGamestate("menus",menus)
-	-- self:addGamestate("level",level)
-	-- self:addGamestate("pause",pause)
-end
 -- goes through loading state to get to wanted state
 function GameInfo:loadState(state_name)	
 	self:changeState("loading")
@@ -150,16 +140,9 @@ end
 
 --pushes a state object onto the stack
 function GameInfo:pushState(state)
-	--table.insert(self.state_stack,state)
-	--self.state_stack[1] = state
-	
 end
 
-function GameInfo:popState() -- for now can only go one step back
-	-- return table
-	local return_state = self.state_stack[#self.state_stack]
-	table.remove(self.state_stack)
-	return return_state
+function GameInfo:popState()
 end
 
 --returns

@@ -8,6 +8,7 @@ require "game/Hud"
 require "game/Player"
 require "game/Coin"
 require "game/Bomb"
+require "game/Item"
 
 -- Constructor
 function GameState:new(g)
@@ -17,7 +18,7 @@ function GameState:new(g)
 		name = "level",
 		p = Player:new(),
 		input = Input:new(),
-		coins = {},
+		items = {},
 		hud = nil,
 		loader = l,
 		map = nil,
@@ -30,6 +31,16 @@ function GameState:new(g)
 	setmetatable(object, { __index = GameState })
 	return object
 end
+
+function GameState:handleObjectCollision(item)   --player collided with this object
+	for i in ipairs(self.items) do
+		if self.items[i]:touchesObject(self.p) then
+			self.game:addScore(100)
+			table.remove(self.items, i)
+		end
+	end	
+end
+
 function GameState:init() --when state is first created, run only once
 	self.height=love.graphics.getHeight()
 	self.width=love.graphics.getWidth()
@@ -41,20 +52,7 @@ function GameState:init() --when state is first created, run only once
 	--player setup
 	self.p:load()
 	
-	--level setup
-	-- Place random coins around the map
-	math.randomseed(os.time())
-	numCoins = 25
-	for i = 1, numCoins do
-		local coinCollides = true
-		while coinCollides do -- try to place a coin on a random spot around the map
-			local coinX = math.random(1, self.map.width - 1) * self.map.tileWidth + self.map.tileWidth / 2
-			local coinY = math.random(1, self.map.height - 1) * self.map.tileHeight + self.map.tileHeight / 2
-			self.coins[i] = Bomb:new(coinX, coinY)
-			-- if tile is occupied, try again
-			coinCollides = self.coins[i]:isColliding(self.map)
-		end
-	end
+
 	
 	--camera setup
 	--camera:scale(0.5,0.5)
@@ -98,14 +96,15 @@ function GameState:update(dt) --update loop
 	self.p:update(dt, self.gravity,self.map)
 	-- update level
 	-- update coin animations and check for player collisions
-	for i in ipairs(self.coins) do
-		self.coins[i]:update(dt)
+	for i in ipairs(self.items) do
+		self.items[i]:update(dt)
 		-- if player collides, add to score and remove coin
-		if self.coins[i]:touchesObject(self.p) then
+		if self.items[i]:touchesObject(self.p) then
 			self.game:addScore(100)
-			table.remove(self.coins, i)
+			table.remove(self.items, i)
 		end
 	end
+	
 	-- center the camera on the player
 	--camera:setPosition(math.floor(self.p.x - self.width / 2), math.floor(self.p.y - self.height / 2))
 	camera:focusOn(math.floor(self.p.x), math.floor(self.p.y))
@@ -126,8 +125,8 @@ function GameState:draw()
 	-- draw the player
 	self.p:draw()
 	--draw level details
-	for i in ipairs(self.coins) do
-		self.coins[i]:draw()
+	for i in ipairs(self.items) do
+		self.items[i]:draw()
 	end
 	--leave relative camera mode
 	camera:unset()
@@ -167,6 +166,21 @@ function GameState:loadLevel()
 	--To change the parallax speed you only need to set the values TileLayer.parallaxX and TileLayer.parallaxY. 1 equals 100% speed so if parallaxX was set to 2 then horizontal scrolling speed would be doubled.
 	self.map.layers["Background"].parallaxX = 2
 	self.map.drawObjects = false
+	--level setup
+	-- Place random coins around the map
+	math.randomseed(os.time())
+	numCoins = 25
+	for i = 1, numCoins do
+		local coinCollides = true
+		while coinCollides do -- try to place a coin on a random spot around the map
+			local coinX = math.random(1, self.map.width - 1) * self.map.tileWidth + self.map.tileWidth / 2
+			local coinY = math.random(1, self.map.height - 1) * self.map.tileHeight + self.map.tileHeight / 2
+			self.items[i] = Item:new("coin",coinX, coinY)
+			-- if tile is occupied, try again
+			coinCollides = self.items[i]:isColliding(self.map)
+		end
+	end
+	
 end
 
 function GameState:saveScreen()
