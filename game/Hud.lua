@@ -52,20 +52,21 @@ function Hud:Score()
 end
 
 function Hud:Debug()
-	local tileX = math.floor(self.state.p.x / self.state.map.tileWidth)
-	local tileY = math.floor(self.state.p.y / self.state.map.tileHeight)
+	local tileX = math.floor(self.state.p.x / self.state.level.map.tileWidth)
+	local tileY = math.floor(self.state.p.y / self.state.level.map.tileHeight)
 	local height=love.graphics.getHeight()
 	debug_info ={
 		"FPS: " .. love.timer.getFPS(),
-		"Player coordinates: ("..self.state.p.x..","..self.state.p.y..")",
+		--"Player coordinates: ("..self.state.p.x..","..self.state.p.y..")",
 		"Current state: "..self.state.p.state,
-		"Current tile: ("..tileX..", "..tileY..")"
+		"Level " .. self.state.current_level .. ", ("..tileX..", "..tileY..") time:" .. self.game.statistics["level_time"],
+		"Game  " .. self.game.statistics["game_time"]
 	}
 	--colour for messages
 	love.graphics.setColor({0,0,255})
 	for i,v in ipairs(debug_info) do 
 		love.graphics.print(debug_info[i], 2, height-(i*10 + 7))
-		print(i,v) 
+		-- print(i,v) 
 	end
 	love.graphics.setColor({255,255,255})
 	

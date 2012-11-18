@@ -43,6 +43,7 @@ end
  
 -- Set whether to notify on last achievement, and for how long.
 function Achievements:update(dt)
+	-- TODO - add code to check times for time-related achievements
 	if self.notifying then
 		self.notify_time = self.notify_time - dt
 		--if self.slide_time = self.slide_time - dt 

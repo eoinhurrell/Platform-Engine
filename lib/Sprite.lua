@@ -30,13 +30,21 @@ function Sprite:load(delay)
 	-- Load up our images into a table from quads, and set our SpriteRow
 	self.image = love.graphics.newImage(self.file)
 	local sourceImage = love.graphics.newImage(self.file)
-	for i = 1, self.num_frames, 1 do
+	for i = 1, self.num_rows, 1 do
 		self.sprites[i] = {}
-		for j = 1, self.num_rows, 1 do
+		local high = self.height * (i - 1)
+		for j = 1, self.num_frames, 1 do
 			-- Create a matrix of all our sprites
 			local wide = self.width * (j - 1)
-			local high = self.height * (i - 1)
+			-- print("--------------------->>>>>>>")
+			-- 		   print(""..self.file)
+			-- 		   print("("..wide..","..high..")")
+			-- 		   print("("..i..","..j..")")
+			-- 		   print("--------------------->>>>>>>")
 			self.sprites[i][j] = love.graphics.newQuad(wide, high, self.width, self.height, sourceImage:getWidth(), sourceImage:getHeight())
+			-- if self.sprites[i][j] == nil then
+			-- 	print("ERROR: ("..wide..","..high..")")
+			-- end
 		end
 	end
 end
@@ -74,6 +82,14 @@ function Sprite:draw(x, y)
 		yOffset = self.height
 	end
 	-- draw the quad
+   -- print("------------------------------")
+   -- print(""..self.file)
+   -- print(""..self.current_row)
+   -- print(""..self.current_frame)
+   -- if (self.sprites[self.current_row][self.current_frame] == nil) then
+   -- 	print("nil")
+   -- end
+   -- print("------------------------------")
 	love.graphics.drawq(self.image, self.sprites[self.current_row][self.current_frame], x, y, 0, xScale, yScale, xOffset, yOffset)
 end
  

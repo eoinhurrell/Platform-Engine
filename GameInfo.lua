@@ -4,6 +4,8 @@ require "states/LoadState"
 require "states/MenuState"
 require "states/GameState"
 require "states/PauseState"
+require "states/SummaryState"
+require "states/DiedState"
 require "lib/Achievements"
 require "lib/Console"
 
@@ -29,9 +31,27 @@ function GameInfo:new()
 		
 		--state info
 		current_state = nil,
-		state = "level",
+		state = "menus", --starting state
 		state_stack = {},
-		gamestates = {}
+		gamestates = {},
+		statistics = {
+			["level_time"] = 0,
+			["level_idle"] = 0,
+			["level_walk"] = 0,
+			["level_jump"] = 0,
+			["level_fall"] = 0,
+			["level_hang"] = 0,
+			["level_"] = 0,
+			["game_time"] = 0,
+			["game_idle"] = 0,
+			["game_walk"] = 0,
+			["game_jump"] = 0,
+			["game_fall"] = 0,
+			["game_hang"] = 0,
+			["game_"] = 0,
+			["jumps"] = 0,
+			["fall_damage"] = 0
+		}
 	}
 	setmetatable(object, { __index = GameInfo })
 	return object
@@ -39,12 +59,15 @@ end
 
 function GameInfo:load()
 	--t = love.timer.getMicroTime()
-	self.gamestates["console"]= Console:new(self)
-	self.gamestates["intro"]  = IntroState:new(self)
-	self.gamestates["loading"]= LoadState:new(self)
-	self.gamestates["level"]  = GameState:new(self)
-	self.gamestates["pause"]  = PauseState:new(self)
-	self.gamestates["menus"]  = MenuState:new(self)
+	self.gamestates["console"]  = Console:new(self)
+	self.gamestates["intro"]    = IntroState:new(self)
+	self.gamestates["menus"]    = MenuState:new(self)
+	self.gamestates["loading"]  = LoadState:new(self)
+	self.gamestates["level"]    = GameState:new(self)
+	self.gamestates["summary"]  = SummaryState:new(self)
+	self.gamestates["pause"]    = PauseState:new(self)
+	self.gamestates["died"]     = DiedState:new(self)
+
 	self.current_state = self.gamestates[self.state]
 	self.current_state:init()
 	self.current_state.init = self.current_state.enter--__NULL__ --Can't be called again?
@@ -76,6 +99,16 @@ end
 function GameInfo:saveSettings()
 end
 
+function GameInfo:resetLevelStats()
+	self.statistics["level_time"] = 0
+	self.statistics["level_idle"] = 0
+	self.statistics["level_walk"] = 0
+	self.statistics["level_jump"] = 0
+	self.statistics["level_fall"] = 0
+	self.statistics["level_hang"] = 0
+	self.statistics["level_"] = 0
+end
+
 function GameInfo:loadAchievements()
 end
 
@@ -91,17 +124,23 @@ end
 function GameInfo:setHealth(amount)
 	if tonumber(amount) ~= "nil" then
 		if tonumber(amount) <= 100 then
-			self.health = amount
+			self.health = tonumber(amount)
 		end
 	end
 end
 
 function GameInfo:takeDamage(damage)
 	if tonumber(damage) ~= "nil" then
-		self.health = self.health - damage
+		self.health = self.health - tonumber(damage)
 		if self.health < 0 then
 			self.health = 0
 		end
+	end
+end
+
+function GameInfo:addHealth(health)
+	if tonumber(health) ~= "nil" then
+		self.health = self.health + tonumber(health)
 	end
 end
 

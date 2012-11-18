@@ -5,7 +5,7 @@
  </tileset>
  <layer name="Sky" width="255" height="35">
   <data encoding="base64" compression="zlib">
-   eJztw0ENAAAMA6GTUf9Kp2I/SFg1VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX189itE5g==
+   eJzt1rENgDAQBEGHlOAy6L86MjILCWE/1k0w+X2w0vfWWgcAAAAAAAAAAAAAAAAAAAAAAG7nQPUuYK6jaR8SaR/2N/rf36i+BXj2ZfPah31oH3LM6F378H/ahwyzW9c+/JP2Ic/q7rUP9Sq61z7U0z5k0j5k0j5k0j7k0j6w0gUhvWk+
   </data>
  </layer>
  <layer name="Background" width="255" height="35">
@@ -15,34 +15,34 @@
  </layer>
  <layer name="Walls" width="255" height="35">
   <data encoding="base64" compression="zlib">
-   eJzt2NGKgkAYhuFti9paOom9/2tdFxyoQVnNKbLveeDHyNHs4E3p8gGkufQDZNE+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZNI+ZGrV/qHBOYDncd+HTKntb7rZ9rO72u4H1pX9rZ5tlpynXM/QtcIcqe1Durnt1/esTf/eZ791L4J1eJf7vv8aYZ5Xaf+rm++G62rl+WTJc8l5wvnHHCa8nnJs+ayx7+E3kKke3X7rpu9tH7ilfcj01/32gXPq5rhg3W5g3emfNcXQ/nptve9avXbsHMasdX7ebIolx957vDFrml8AFByZ
+   eJzt211LwzAUgOG4D2cnuxnqzaa4G0EQ///PswcaFrMkdrFL2p73gYOltZsK79J9uDcAtNl3A0AX2gd0on1AJ9oHdKJ9QCfaB3SifUAn2gd0on1AJ9oHdKJ9QCfaB3SifUAn2gd0on1AJ9oH9Fg6Q/vAvLm9u2gfmLeHyH7aB+aN9oHpW2aO9drOoRvaB8bPNnzKHNv8p3Obfvt37ayc+1o5X+9v82sBSPCb/w58zylx/of53bzFug/UtwnsC631oYaNSbcfM4X25Vpk0c7a5F17hP6u/zH07QHyepz/HN2/bg+t99Zc2xfP7bxknrsb8ge5we0B0n7q+Xpsvbfkuv7YzZuzP/WYULP9Uusn7WPsUu2n1vu/yPn+44FVq325jm9MmdcPaR9jJi30Xd+HVHPdL9UQ7QOXNLRvX0eR9ykX3rFNZFusu3P89zdpH1N1dLZrtG8/Q7A1ZT43sItsX3Osz35g7Ozzf5la676sxdL+Y4H7on3gEu2f30+lfUzZ+5XfL93n/n/AVGbrbDfesabnsT77GSZnDhXniWGYavNVcX4AcUwthw==
   </data>
  </layer>
  <objectgroup name="Objects" width="255" height="35">
-  <object name="level_start" type="trigger" x="75" y="571" width="38" height="42"/>
-  <object name="coin" type="item" x="512" y="858" width="32" height="32">
+  <object name="level_start" type="trigger" x="103" y="426" width="38" height="42"/>
+  <object name="coin" type="item" x="1281" y="661" width="32" height="32">
    <properties>
     <property name="score" value="100"/>
    </properties>
   </object>
-  <object name="coin" type="item" x="544" y="704" width="32" height="32">
+  <object name="coin" type="item" x="1327" y="661" width="32" height="32">
    <properties>
     <property name="score" value="100"/>
    </properties>
   </object>
-  <object name="coin" type="item" x="1567" y="886" width="32" height="32">
+  <object name="coin" type="item" x="1374" y="661" width="32" height="32">
    <properties>
     <property name="score" value="100"/>
    </properties>
   </object>
-  <object name="coin" type="coin" x="575" y="858" width="32" height="32">
+  <object name="coin" type="item" x="299" y="604" width="32" height="32">
    <properties>
     <property name="score" value="50"/>
    </properties>
   </object>
   <object name="bomb" type="item" x="960" y="788" width="32" height="32">
    <properties>
-    <property name="damage" value="5"/>
+    <property name="damage" value="50"/>
    </properties>
   </object>
   <object name="bomb" type="item" x="1621" y="733" width="32" height="32">
@@ -55,20 +55,14 @@
     <property name="damage" value="50"/>
    </properties>
   </object>
-  <object name="bomb" type="item" x="1855" y="881" width="32" height="32">
+  <object name="bomb" type="item" x="1790" y="540" width="32" height="32">
    <properties>
     <property name="damage" value="50"/>
    </properties>
   </object>
-  <object name="level_finish" type="trigger" x="3681" y="443" width="475" height="902"/>
-  <object name="fall" type="hazard" x="1664" y="1088" width="64" height="32">
+  <object name="level_finish" type="trigger" x="2514" y="308" width="590" height="774">
    <properties>
-    <property name="damage" value="100"/>
-   </properties>
-  </object>
-  <object name="fall" type="hazard" x="2144" y="1088" width="96" height="32">
-   <properties>
-    <property name="damage" value="100"/>
+    <property name="level" value="1"/>
    </properties>
   </object>
  </objectgroup>

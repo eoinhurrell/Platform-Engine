@@ -1,7 +1,3 @@
--- Player class
--- Author: Sean Laurvick
--- A simple Player object for use in the Platformer game.
-
 Player = {}
 
 -- Constructor
@@ -47,14 +43,13 @@ function Player:load()
 	self.hasJumped = false
 	delay = 120
 	self.anim = Sprite:new("assets/player-sprite.png", 36, 64, 4, 8)
-	--sprite layout
-	--idle
-	--walking
-	--jumping
-	--hanging
 	self.anim:load(delay)
 end
 
+function Player:restart()
+	self.x = 300
+	self.y = 0	
+end
 
 -- Movement functions
 function Player:jump()
