@@ -1,7 +1,7 @@
-PauseState = {}
+SummaryState = {}
 
 -- Constructor
-function PauseState:new(g)
+function SummaryState:new(g)
 	-- define our parameters here
 	local object = {
 		game = g,
@@ -12,67 +12,68 @@ function PauseState:new(g)
 		action_text={"Quit to Desktop"},
 		action = {function() love.event.quit() end}
 	}
-	setmetatable(object, { __index = PauseState })
+	setmetatable(object, { __index = SummaryState })
 	return object
 end
 
-function PauseState:doAction()
-	if self.action[self.highlighted] == nil then 
-		error("Unknown command")
-	else
-		self.action[self.highlighted]()
-	end
-end
-
-function PauseState:init()
+function SummaryState:init()
 	love.graphics.setNewFont("assets/DroidSans.ttf", 12)
 	self.input = Input:new()
-	self.input:addButton("press","up",function()self.highlighted = self.highlighted - 1 if self.highlighted < 1 then self.hightlighted = #self.action_text end end)
-	self.input:addButton("press","down",function()self.highlighted = self.highlighted + 1 if self.highlighted > #self.action_text then self.hightlighted = 1 end end)
+	self.input:addButton("press","space",function()self.game:switch(self.from.name)end)
 	self.input:addButton("press","escape",function()self.game:switch(self.from.name)end)
-	self.input:addButton("press","return",function()self:doAction()end)
+	self.input:addButton("press","return",function()self.game:switch(self.from.name)end)
 	--self.input:addButton("press","`",function()self.game:switch("console")end)	
 end --when state is first created, run only once
-function PauseState:leave()end --when state is no longer active
-function PauseState:enter(from, ...) --when state comes back from pause (or is transitioned into)
+function SummaryState:leave()end --when state is no longer active
+function SummaryState:enter(from, ...) --when state comes back from pause (or is transitioned into)
 	self.from = from
 end
-function PauseState:finish()end --when state is finished
-function PauseState:update(dt)
+function SummaryState:finish()end --when state is finished
+function SummaryState:update(dt)
 	self.input:update(dt)
 end
-function PauseState:draw()
-	self.from:draw()
-	self:drawMainPause()
-end
-
-function PauseState:drawMainPause()
+function SummaryState:draw()
 	local height=love.graphics.getHeight()
 	local width=love.graphics.getWidth()
 	love.graphics.setColor(126,126,126)
-	love.graphics.rectangle("fill",width/2-150,height/2-150,300,300)
+	love.graphics.rectangle("fill",width,height,300,300)
 	love.graphics.setColor(255,255,255)
-	love.graphics.print("Paused", width/2-100,height/2-140,0,2,2)
-	local numOptions = #self.action_text
-	for i = 1, numOptions do
-		love.graphics.print(self.action_text[i], width/2-80,(height/2-110)+(i*20))
-	end
-	love.graphics.print(">", width/2-90,(height/2-110)+(self.highlighted*20))
+	love.graphics.print("Level Summary", width/2-100,height/2-240,0,2,2)
+	-- local i = 1
+	-- for k,v in pairs(self.game.statistics) do
+	-- 	local name = "" .. k .. string.rep(' ', 20-#k)
+	-- 	love.graphics.print(name..v, width/2-100,height/2-140 +(22*i),0,1,1)
+	-- 	i = i + 1
+	-- end
+	love.graphics.print("Score",width/2-100,height/2-165,0,1,1)
+	love.graphics.print(""..self.game.statistics["level_score"],width/2-300,height/2-165,0,1,1)
+	love.graphics.print("Time",width/2-100,height/2-190,0,1,1)
+	love.graphics.print(""..self.game.statistics["level_time"],width/2-300,height/2-190,0,1,1)
+	love.graphics.print("Time Idle",width/2-100,height/2-215,0,1,1)
+	love.graphics.print(""..self.game.statistics["level_idle"],width/2-300,height/2-215,0,1,1)
+	love.graphics.print("Time Walking",width/2-100,height/2-240,0,1,1)
+	love.graphics.print(""..self.game.statistics["level_walk"],width/2-300,height/2-240,0,1,1)
+	love.graphics.print("Time Jumping",width/2-100,height/2-265,0,1,1)
+	love.graphics.print(""..self.game.statistics["level_jump"],width/2-300,height/2-265,0,1,1)
+	love.graphics.print("Time Falling",width/2-100,height/2-290,0,1,1)
+	love.graphics.print(""..self.game.statistics["level_fall"],width/2-300,height/2-290,0,1,1)
+	love.graphics.print("Time Hanging",width/2-100,height/2-315,0,1,1)
+	love.graphics.print(""..self.game.statistics["level_hang"],width/2-300,height/2-315,0,1,1)
 end
 
-function PauseState:focus()end
-function PauseState:keypressed(key)
+function SummaryState:focus()end
+function SummaryState:keypressed(key)
 	self.input:keypressed(key)
 end
-function PauseState:keyreleased(key)
+function SummaryState:keyreleased(key)
 	self.input:keyreleased(key)
 end
-function PauseState:mousepressed(x,y,button)
+function SummaryState:mousepressed(x,y,button)
 	self.input:mousepressed(x,y,button)
 end
-function PauseState:mousereleased(x,y,button)
+function SummaryState:mousereleased(x,y,button)
 	self.input:mousereleased(x,y,button)
 end
-function PauseState:joystickpressed()end
-function PauseState:joystickreleased()end
-function PauseState:quit()end
+function SummaryState:joystickpressed()end
+function SummaryState:joystickreleased()end
+function SummaryState:quit()end

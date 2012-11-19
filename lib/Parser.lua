@@ -103,11 +103,8 @@ function Parser:command_gravity(params)
 	return "Gravity is " ..self.game:getGravity()
 end
 
-function Parser:command_gravity(params)
-	local value = params[1]	
-	if tonumber(value) == "nil" then
-		return "Cannot change gravity: number expected"
-	end
+function Parser:command_god(params)
+	self.game:setGod(not self.game:isGod())
 	self.game:setGravity(value)
 	if self.game:isGod() then
 		return "god mode is ON"

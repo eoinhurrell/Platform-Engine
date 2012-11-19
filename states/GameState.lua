@@ -26,7 +26,8 @@ function GameState:new(g)
 		width = 800,
 		height = 600,
 		gravity = 1800,
-		grap = love.graphics
+		grap = love.graphics,
+		on_return = nil
 	}
 	setmetatable(object, { __index = GameState })
 	return object
@@ -82,19 +83,21 @@ function GameState:handleTriggerCollision(trigger)   --all collision
 		-- end
 	end
 	if effects["level"] ~= nil then
-		print("changing level to " .. effects["level"])
-		self:changeLevel(effects["level"])
+		self.on_return = function() self:changeLevel(effects["level"]) end
+		self.game:switch("summary")
 	end
 end
 
 function GameState:changeLevel(next_level)
-	self.game.switch("summary")
-	self.game.resetLevelStats()
-	next_level = next_level or (self.current_level + 1)
+	self.p:setRun(false)
+	self.p:stop()
+	camera:scale(1,1)
+	self.game:resetLevelStats()
 	if (next_level < #self.level_list + 1) then
 		self.current_level = next_level
 		self.level = Level:new(self.level_list[next_level],self,self.p)
 	end
+	
 end
 
 function GameState:init() --when state is first created, run only once
@@ -109,7 +112,7 @@ function GameState:init() --when state is first created, run only once
 	--self:loadLevel()
 	self.level = Level:new(self.level_list[self.current_level],self,self.p)
 	--camera setup
-	camera:scale(0.5,0.5)
+	camera:scale(1,1)
 	-- restrict the camera
 	camera:setBounds(0, 0, self.level.map.width * self.level.map.tileWidth - self.width, self.level.map.height * self.level.map.tileHeight - self.height)
 	
@@ -134,6 +137,11 @@ function GameState:leave()
 		self.p:stop()
 end --when state is no longer active
 function GameState:enter(from, ...) --when state comes back from pause (or is transitioned into)
+	if self.on_return ~= nil then
+		print("Returning")
+		self.on_return()
+		self.on_return = nil
+	end
 end
 function GameState:finish()  --when state is finished
 end
@@ -186,12 +194,16 @@ function GameState:updateStats(dt)
 	self.game.statistics["level_time"] = self.game.statistics["level_time"] + dt
 	local key = "level_"
 	key = key..self.p.state
+	key = string.gsub(key, "Left", "")
+	key = string.gsub(key, "Right", "")
 	if self.game.statistics[key] ~= nil then
 		self.game.statistics[key] = self.game.statistics[key] + dt
 	end
 	self.game.statistics["game_time"] = self.game.statistics["game_time"] + dt
 	local key = "game_"
 	key = key..self.p.state
+	key = string.gsub(key, "Left", "")
+	key = string.gsub(key, "Right", "")
 	if self.game.statistics[key] ~= nil then
 		self.game.statistics[key] = self.game.statistics[key] + dt
 	end

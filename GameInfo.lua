@@ -20,8 +20,6 @@ function GameInfo:new()
 		achievements = Achievements:new(),
 
 		--gameplay variables
-		level = 1, --index down the list of levels available.
-		level_files = {},
 		diff_modifier = {easy=0.5,normal=1.0,hard=2.0},
 		difficulty = "normal",
 		god = false,
@@ -35,19 +33,25 @@ function GameInfo:new()
 		state_stack = {},
 		gamestates = {},
 		statistics = {
-			["level_time"] = 0,
-			["level_idle"] = 0,
-			["level_walk"] = 0,
-			["level_jump"] = 0,
-			["level_fall"] = 0,
-			["level_hang"] = 0,
-			["level_"] = 0,
-			["game_time"] = 0,
-			["game_idle"] = 0,
-			["game_walk"] = 0,
-			["game_jump"] = 0,
-			["game_fall"] = 0,
-			["game_hang"] = 0,
+			["level_score"] = 0,
+			["level_time"]  = 0,
+			["level_idle"]  = 0,
+			["level_walk"]  = 0,
+			["level_jump"]  = 0,
+			["level_fall"]  = 0,
+			["level_hang"]  = 0,
+			["level_stand"] = 0,
+			["level_move"] = 0,
+			["level_"]      = 0,
+			["game_score"] = 0,
+			["game_time"]  = 0,
+			["game_idle"]  = 0,
+			["game_walk"]  = 0,
+			["game_jump"]  = 0,
+			["game_fall"]  = 0,
+			["game_hang"]  = 0,
+			["game_stand"] = 0,
+			["game_move"] = 0,
 			["game_"] = 0,
 			["jumps"] = 0,
 			["fall_damage"] = 0
@@ -100,6 +104,7 @@ function GameInfo:saveSettings()
 end
 
 function GameInfo:resetLevelStats()
+	self.statistics["level_score"] = 0
 	self.statistics["level_time"] = 0
 	self.statistics["level_idle"] = 0
 	self.statistics["level_walk"] = 0
@@ -107,6 +112,8 @@ function GameInfo:resetLevelStats()
 	self.statistics["level_fall"] = 0
 	self.statistics["level_hang"] = 0
 	self.statistics["level_"] = 0
+	self.statistics["level_stand"] = 0
+	self.statistics["level_move"] = 0
 end
 
 function GameInfo:loadAchievements()
@@ -130,7 +137,7 @@ function GameInfo:setHealth(amount)
 end
 
 function GameInfo:takeDamage(damage)
-	if tonumber(damage) ~= "nil" then
+	if tonumber(damage) ~= "nil" and not self.god then
 		self.health = self.health - tonumber(damage)
 		if self.health < 0 then
 			self.health = 0
@@ -150,38 +157,19 @@ function GameInfo:isAlive()
 end
 
 function GameInfo:getScore()
-	return self.score
+	return self.statistics["game_score"]
 end
 
 function GameInfo:addScore(amount)
-	--if type(amount) == "number" then	
-		self.score = self.score + amount
-	--end
-end
-
-function GameInfo:getLevel()
-	return self.level
-end
-
-function GameInfo:setLevel(lvl)
-	self.level = lvl
-end
--- goes through loading state to get to wanted state
-function GameInfo:loadState(state_name)	
-	self:changeState("loading")
-	self.gamestates["loading"]:waitFor(state_name)
+	if tonumber(amount) ~= "nil" then
+		self.statistics["game_score"] = self.statistics["game_score"] + tonumber(amount)
+		self.statistics["level_score"] = self.statistics["level_score"] + tonumber(amount)
+	end
 end
 
 --returns state object, not name
 function GameInfo:getState()
 	return self.current_state
-end
-
---pushes a state object onto the stack
-function GameInfo:pushState(state)
-end
-
-function GameInfo:popState()
 end
 
 --returns
@@ -216,7 +204,7 @@ end
 
 function GameInfo:setGod(is_god)
 	--if type(is_god) == "boolean" then	
-		self.god = is_god
+	self.god = is_god
 	--end
 end
 
