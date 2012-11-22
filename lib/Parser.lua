@@ -23,7 +23,6 @@ function Parser:new(g)
 end
 
 function Parser:parse(text) -- right now does nothing
-	self.game:setHealth(50)
 	local parts = {}
 	for bit in text:gmatch("%S+") do
 		table.insert(parts,bit)
@@ -105,7 +104,6 @@ end
 
 function Parser:command_god(params)
 	self.game:setGod(not self.game:isGod())
-	self.game:setGravity(value)
 	if self.game:isGod() then
 		return "god mode is ON"
 	else
