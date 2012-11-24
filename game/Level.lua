@@ -21,12 +21,26 @@ function Level:new(Level_name,s,player)
 	--object.map.layers["Background"].parallaxX = 2
 	object.map.drawObjects = false
 	--level setup
-
+	--set collidible tiles
+	local layer = object.map.layers["Walls"]   
+	for tileX=1,object.map.width do
+		for tileY=1,object.map.height do
+			local tile = layer:get(tileX, tileY)
+			if tile ~= nil then
+				local ctile = {}
+				ctile.x = (tileX)*object.map.tileWidth
+				ctile.y = (tileY)*object.map.tileHeight
+				ctile.w = object.map.tileWidth
+				ctile.h = object.map.tileHeight
+				table.insert(object.tiles, ctile)
+			end
+		end
+	end
 	-- Iterating over all objects in a layer
 	for i, obj in pairs(object.map("Objects").objects ) do
 		if obj.type == "item" then
 			if obj.name == "coin" or obj.name == "bomb" then
-				local item = Item:new(obj.name,obj.x,obj.y)
+				local item = Item:new(obj.name,obj.x+(obj.width/2),obj.y+(obj.height/2))
 				for k,v in pairs(obj.properties) do 
 					item:setEffect(k,v)
 				end
@@ -34,8 +48,8 @@ function Level:new(Level_name,s,player)
 			end
 		end
 		if obj.type == "hazard" then
-			local haz = Hazard:new(obj.name,obj.x,obj.y,obj.width,obj.height)
-			haz:setDamage(100)--obj.properties["damage"])
+			local haz = Hazard:new(obj.name,obj.x+(obj.width/2),obj.y+(obj.height/2),obj.width,obj.height)
+			haz:setDamage(obj.properties["damage"])
 			table.insert(object.hazards, haz)
 		end
 		if obj.type == "trigger" then
@@ -45,7 +59,7 @@ function Level:new(Level_name,s,player)
 			end
 			if obj.name == "level_finish" then
 				--place end of level thing here
-				local trig = Trigger:new(obj.name,obj.x,obj.y,obj.width,obj.height)
+				local trig = Trigger:new(obj.name,obj.x+(obj.width/2),obj.y+(obj.height/2),obj.width,obj.height)
 				print("Current level:"..object.state.current_level)
 				trig:setEffect("level",(object.state.current_level+1))
 				print("Next level:"..object.state.current_level+1)

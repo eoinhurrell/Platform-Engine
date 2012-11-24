@@ -27,6 +27,8 @@ function GameState:new(g)
 		height = 600,
 		gravity = 1800,
 		grap = love.graphics,
+		tile = nil,
+		active = false,
 		on_return = nil
 	}
 	setmetatable(object, { __index = GameState })
@@ -132,13 +134,13 @@ function GameState:init() --when state is first created, run only once
 	self.input:addButton("press","`",function()self.game:switch("console")end)			--console
 	--temp debug stuff
 	--self.input:addButton("press","z",function()self.game.achievements:unlock("001")end)
+	self.active = true
 end
 function GameState:leave()
 		self.p:stop()
 end --when state is no longer active
 function GameState:enter(from, ...) --when state comes back from pause (or is transitioned into)
 	if self.on_return ~= nil then
-		print("Returning")
 		self.on_return()
 		self.on_return = nil
 	end
@@ -151,63 +153,116 @@ function GameState:update(dt) --update loop
 	end
 	self.input:update(dt) --update input events
 	--update movements with collison detection
-	 local halfX = self.p.width / 2
-    local halfY = self.p.height / 2
-    
-    -- apply gravity
-    self.p.ySpeed = self.p.ySpeed + (self.gravity * dt)
-    
-    -- limit the player's speed
-    self.p.xSpeed = math.clamp(self.p.xSpeed, -self.p.xSpeedMax, self.p.xSpeedMax)
-    self.p.ySpeed = math.clamp(self.p.ySpeed, -self.p.ySpeedMax, self.p.ySpeedMax)
-    
-    -- calculate vertical position and adjust if needed
-	local nextY = math.floor(self.p.y + (self.p.ySpeed * dt))
-	if self.p.ySpeed < 0 then -- check upward
-		if not(self.p:isColliding(self.level.map, self.p.x - halfX, nextY - halfY))
-			and not(self.p:isColliding(self.level.map, self.p.x + halfX - 1, nextY - halfY)) then
-			-- no collision, move normally
-			self.p.y = nextY
-			self.p.onFloor = false
-		else
+	if self.active then	
+		self:updateMovement(dt)
+	end
+	self.p:update(dt) --update the player's position (only collision handled by player, to make sure they can move ok)
+	self.level:update(dt) --update level
+	camera:focusOn(math.floor(self.p.x), math.floor(self.p.y)) --center the camera on the player
+	self:updateStats(dt) --update game statistics
+	self.game.achievements:update(dt) --update achievement details
+end
+function GameState:draw()
+	--go into relative camera mode
+	camera:set()
+	-- draw the map, limiting it to preserve resources
+	self.level:draw()	
+	-- draw the player
+	self.p:draw()
+	--test tile
+	if self.tile ~= nil then
+		love.graphics.setColor(255,0,0)
+		love.graphics.rectangle("fill",self.tile.x,self.tile.y,self.tile.w,self.tile.h)
+		love.graphics.setColor(255,255,255)
+	end
+	--leave relative camera mode
+	camera:unset()
+	self.hud:draw()
+	self.game.achievements:draw()
+end
+function GameState:focus()
+	self.game:switch("pause")
+end
+function GameState:keypressed(key)
+	self.input:keypressed(key)
+end
+function GameState:keyreleased(key)
+	self.input:keyreleased(key)
+end
+function GameState:mousepressed(x,y,button)
+	self.input:mousepressed(x,y,button)
+end
+function GameState:mousereleased(x,y,button)
+	self.input:mousereleased(x,y,button)
+end
+function GameState:joystickpressed()
+end
+function GameState:joystickreleased()
+end
+function GameState:quit()
+end
+
+function GameState:updateMovement(dt)
+	local halfX = self.p.width / 2
+	local halfY = self.p.height / 2
+
+	-- apply gravity
+	self.p.ySpeed = self.p.ySpeed + (self.gravity * dt)
+
+
+	-- limit the player's speed
+	self.p.xSpeed = math.clamp(self.p.xSpeed, -self.p.xSpeedMax, self.p.xSpeedMax)
+	self.p.ySpeed = math.clamp(self.p.ySpeed, -self.p.ySpeedMax, self.p.ySpeedMax)
+	
+	local colY = false
+	local colX = false
+	
+	local curX     = self.p.x - halfX
+	local nextX    = math.floor(self.p.x + (self.p.xSpeed * dt))
+	local curY    = self.p.y - halfY
+	local nextY   = math.floor(self.p.y + (self.p.ySpeed * dt))
+	
+	--check for collisons
+	for i,tile in pairs(self.level.tiles) do
+		if not colY then
+			colY = self:checkCollision(tile.x,tile.y,tile.w,tile.h,curX, nextY - halfY,self.p.width,self.p.height)
+		end
+		if not colX then
+			colX = self:checkCollision(tile.x,tile.y,tile.w,tile.h,nextX-halfX, curY,self.p.width,self.p.height)
+		end
+	end
+	--act on collisons
+	if self.p.ySpeed < 0 then --upward
+		if colY then
 			-- collision, move to nearest tile border
 			self.p.y = nextY + self.level.map.tileHeight - ((nextY - halfY) % self.level.map.tileHeight)
 			--here we could check for pipes or other things he could hang from
 			self.p:collide("ceiling")
-		end
-	elseif self.p.ySpeed > 0 then -- check downward
-		if not(self.p:isColliding(self.level.map, self.p.x - halfX, nextY + halfY))
-			and not(self.p:isColliding(self.level.map, self.p.x + halfX - 1, nextY + halfY)) then
-			-- no collision, move normally
+		else --move normally
 			self.p.y = nextY
 			self.p.onFloor = false
-		else
+		end
+	elseif self.p.ySpeed > 0 then --downaward
+		if colY then
 			-- collision, move to nearest tile border
 			self.p.y = nextY - ((nextY + halfY) % self.level.map.tileHeight)
 			self.p:collide("floor")
+		else
+			-- no collision, move normally
+			self.p.y = nextY
 		end
 	end
-	-- calculate horizontal position and adjust if needed
-	local nextX = math.floor(self.p.x + (self.p.xSpeed * dt))
-	if self.p.xSpeed > 0 then -- check right
-		if not(self.p:isColliding(self.level.map, nextX + halfX, self.p.y - halfY))
-			and not(self.p:isColliding(self.level.map, nextX + halfX, self.p.y + halfY - 1)) then
-			-- no collision
-			self.p.x = nextX
-		else
-			-- collision, move to nearest tile
-			-- here he's collided with a wall, if it is 'hangable' and if he's not on the ground the collide "hang_right"
-			self.p.x = nextX - ((nextX + halfX) % self.level.map.tileWidth)
-		end
-	elseif self.p.xSpeed < 0 then -- check left
-		if not(self.p:isColliding(self.level.map, nextX - halfX, self.p.y - halfY))
-			and not(self.p:isColliding(self.level.map, nextX - halfX, self.p.y + halfY - 1)) then
-			-- no collision
-			self.p.x = nextX
-		else
-			-- collision, move to nearest tile
-			-- here he's collided with a wall, if it is 'hangable' and if he's not on the ground the collide "hang_left"
+	if self.p.xSpeed < 0 then --left
+		if colX then
 			self.p.x = nextX + self.level.map.tileWidth - ((nextX - halfX) % self.level.map.tileWidth)
+		else
+			self.p.x = nextX
+		end
+	elseif self.p.xSpeed > 0 then --right
+		if colX then
+			self.p.x = nextX - ((nextX + halfX) % self.level.map.tileWidth)
+		else
+			self.p.x = nextX
 		end
 	end
 	
@@ -247,45 +302,6 @@ function GameState:update(dt) --update loop
 			end
 		end
 	end
-	
-	self.p:update(dt) --update the player's position (only collision handled by player, to make sure they can move ok)
-	self.level:update(dt) --update level
-	camera:focusOn(math.floor(self.p.x), math.floor(self.p.y)) --center the camera on the player
-	self:updateStats(dt) --update game statistics
-	self.game.achievements:update(dt) --update achievement details
-end
-function GameState:draw()
-	--go into relative camera mode
-	camera:set()
-	-- draw the map, limiting it to preserve resources
-	self.level:draw()	
-	-- draw the player
-	self.p:draw()
-	--leave relative camera mode
-	camera:unset()
-	self.hud:draw()
-	self.game.achievements:draw()
-end
-function GameState:focus()
-	self.game:switch("pause")
-end
-function GameState:keypressed(key)
-	self.input:keypressed(key)
-end
-function GameState:keyreleased(key)
-	self.input:keyreleased(key)
-end
-function GameState:mousepressed(x,y,button)
-	self.input:mousepressed(x,y,button)
-end
-function GameState:mousereleased(x,y,button)
-	self.input:mousereleased(x,y,button)
-end
-function GameState:joystickpressed()
-end
-function GameState:joystickreleased()
-end
-function GameState:quit()
 end
 
 function GameState:updateStats(dt)
@@ -317,6 +333,7 @@ end
 -- Checks if a and b overlap.
 -- w and h mean width and height.
 function GameState:checkCollision(ax1,ay1,aw,ah, bx1,by1,bw,bh)
-  local ax2,ay2,bx2,by2 = ax1 + aw, ay1 + ah, bx1 + bw, by1 + bh
-  return ax1 < bx2 and ax2 > bx1 and ay1 < by2 and ay2 > by1
+	local ax2,ay2,bx2,by2 = ax1 + aw, ay1 + ah, bx1 + bw, by1 + bh
+	--print(''..ax1.."<"..bx2.." and "..ax2..">"..bx1.." and "..ay1.."<"..by2.." and "..ay2..">"..by1)
+	return ax1 < bx2 and ax2 > bx1 and ay1 < by2 and ay2 > by1
 end

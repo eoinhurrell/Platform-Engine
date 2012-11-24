@@ -139,7 +139,7 @@ function Player:getState()
     end
     if self.ySpeed < 0 then
         myState = "jump"
-    elseif self.ySpeed > 0 then
+    elseif self.ySpeed > 0 and not self.onFloor then
         myState = "fall"
     end
     return myState

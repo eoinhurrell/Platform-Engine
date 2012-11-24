@@ -19,8 +19,8 @@
   </data>
  </layer>
  <objectgroup name="Objects" width="255" height="35">
-  <object name="level_start" type="trigger" x="75" y="571" width="38" height="42"/>
-  <object name="coin" type="item" x="512" y="858" width="32" height="32">
+  <object name="level_start" type="trigger" x="80" y="563" width="38" height="42"/>
+  <object name="coin" type="item" x="512" y="864" width="32" height="32">
    <properties>
     <property name="score" value="100"/>
    </properties>
@@ -35,7 +35,7 @@
     <property name="score" value="100"/>
    </properties>
   </object>
-  <object name="coin" type="coin" x="575" y="858" width="32" height="32">
+  <object name="coin" type="item" x="576" y="864" width="32" height="32">
    <properties>
     <property name="score" value="50"/>
    </properties>
