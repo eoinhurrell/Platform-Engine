@@ -9,6 +9,7 @@ function Level:new(Level_name,s,player)
 		state    = s,
 		map      = nil,
 		loader   = l,
+		tiles    = {},
 		items    = {},
 		hazards  = {},
 		triggers = {}
@@ -20,6 +21,7 @@ function Level:new(Level_name,s,player)
 	--object.map.layers["Background"].parallaxX = 2
 	object.map.drawObjects = false
 	--level setup
+
 	-- Iterating over all objects in a layer
 	for i, obj in pairs(object.map("Objects").objects ) do
 		if obj.type == "item" then
@@ -73,43 +75,17 @@ function Level:restart() --for full restart
 	self:placeItems()
 end
 
-function Level:update(dt,player)
-	-- update coin animations and check for player collisions
-	for i in ipairs(self.items) do
-		self.items[i]:update(dt)
-		-- if player collides, add to score and remove coin
-		if self.items[i]:touchesObject(player) then
-			print("Hit:".. self.items[i].name)
-			self.state:handleItemCollision(self.items[i])
-			if self.items[i]:isDestructible() then
-				table.remove(self.items, i)
-			end
-		end
-	end
-	-- update coin animations and check for player collisions
-	for i in ipairs(self.hazards) do
-		self.hazards[i]:update(dt)
-		-- if player collides, add to score and remove coin
-		if self.hazards[i]:touchesObject(player) then
-			print("Hit:".. self.hazards[i].name)
-			self.state:handleHazardCollision(self.hazards[i])
-			if self.hazards[i]:isDestructible() then
-				table.remove(self.hazards, i)
-			end
-		end
-	end
-	-- update coin animations and check for player collisions
-	for i in ipairs(self.triggers) do
-		self.triggers[i]:update(dt)
-		-- if player collides, add to score and remove coin
-		if self.triggers[i]:touchesObject(player) then
-			print("Hit:".. self.triggers[i].name)
-			self.state:handleTriggerCollision(self.triggers[i])
-			if self.triggers[i]:isDestructible() then
-				table.remove(self.triggers, i)
-			end
-		end
-	end
+function Level:update(dt)
+end
+
+function Level:getTile(x,y)
+	-- get tile coordinates
+   local layer = self.map.layers["Walls"]
+   local tileX, tileY = math.floor(x / self.map.tileWidth), math.floor(y / self.map.tileHeight)
+   
+   -- grab the tile at given point
+   local tile = layer:get(tileX, tileY)
+   return tile
 end
 
 function Level:draw()

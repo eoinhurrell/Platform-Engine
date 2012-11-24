@@ -3,6 +3,9 @@
  <tileset firstgid="1" name="Tiles" tilewidth="32" tileheight="32">
   <image source="../assets/pixel-tileset-dirt.png" trans="ffffff" width="192" height="256"/>
  </tileset>
+ <tileset firstgid="49" name="Hazards" tilewidth="128" tileheight="128">
+  <image source="../assets/hazards.png" trans="ffffff" width="512" height="512"/>
+ </tileset>
  <layer name="Sky" width="255" height="35">
   <data encoding="base64" compression="zlib">
    eJzt1rENgDAQBEGHlOAy6L86MjILCWE/1k0w+X2w0vfWWgcAAAAAAAAAAAAAAAAAAAAAAG7nQPUuYK6jaR8SaR/2N/rf36i+BXj2ZfPah31oH3LM6F378H/ahwyzW9c+/JP2Ic/q7rUP9Sq61z7U0z5k0j5k0j5k0j7k0j6w0gUhvWk+
@@ -15,7 +18,12 @@
  </layer>
  <layer name="Walls" width="255" height="35">
   <data encoding="base64" compression="zlib">
-   eJzt211LwzAUgOG4D2cnuxnqzaa4G0EQ///PswcaFrMkdrFL2p73gYOltZsK79J9uDcAtNl3A0AX2gd0on1AJ9oHdKJ9QCfaB3SifUAn2gd0on1AJ9oHdKJ9QCfaB3SifUAn2gd0on1AJ9oH9Fg6Q/vAvLm9u2gfmLeHyH7aB+aN9oHpW2aO9drOoRvaB8bPNnzKHNv8p3Obfvt37ayc+1o5X+9v82sBSPCb/w58zylx/of53bzFug/UtwnsC631oYaNSbcfM4X25Vpk0c7a5F17hP6u/zH07QHyepz/HN2/bg+t99Zc2xfP7bxknrsb8ge5we0B0n7q+Xpsvbfkuv7YzZuzP/WYULP9Uusn7WPsUu2n1vu/yPn+44FVq325jm9MmdcPaR9jJi30Xd+HVHPdL9UQ7QOXNLRvX0eR9ykX3rFNZFusu3P89zdpH1N1dLZrtG8/Q7A1ZT43sItsX3Osz35g7Ozzf5la676sxdL+Y4H7on3gEu2f30+lfUzZ+5XfL93n/n/AVGbrbDfesabnsT77GSZnDhXniWGYavNVcX4AcUwthw==
+   eJzt281OwkAUgNEq+APGjVE3oJGNiYnx/R/PTsIkY1MqNuBA7znJjaSA1cXHTBEfGiCah+0AsWgfYtI+xKR9iEn7EJP2ISbtQ0zah5i0DzFpH2LSPsSkfYhJ+xCT9iEm7UNM2oc4ZsVoH6at7L2kfZi22x3HtQ/Tpn04f7ORk720s9qO9uH05YY3Iyc3/1F8z277F+3Mi3PNi6/Xx/m1gAHd5r96HrMZeP5787P5zLoP9d30HOtb6/sabprh9nc5h/bTXuSynavG3oNpSu/Hda/Ru/v2vvU+m2r7yVM7z7V/CDiS1P7Q9fqu9T5L+/r1dl6L40OvCTXb79vnQERD7Q+t979Jz+++HmS12k/7+EVjDw+phX3X90Oque7fVzovoH2IZF3crtF+/gzBsvG5AfhP+fo/Ta11P723kdq/q3BuQPuH4O8VnIK3Pz4+dT/2/wPOZZbF7UXnvsWe9+1z3Jgxs6o4j8aYavNZcb4Bhocr6Q==
+  </data>
+ </layer>
+ <layer name="Foreground" width="255" height="35">
+  <data encoding="base64" compression="zlib">
+   eJztwTEBAAAAwqD1T20KP6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4GuLdAAB
   </data>
  </layer>
  <objectgroup name="Objects" width="255" height="35">
@@ -40,7 +48,7 @@
     <property name="score" value="50"/>
    </properties>
   </object>
-  <object name="bomb" type="item" x="960" y="788" width="32" height="32">
+  <object name="bomb" type="item" x="960" y="800" width="32" height="32">
    <properties>
     <property name="damage" value="50"/>
    </properties>

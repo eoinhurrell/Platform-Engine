@@ -8,7 +8,8 @@ function MenuState:new(g)
 	local object = {
 		game = g,
 		input = Input:new(),
-		menu = Menu:new(100,100),
+		menus = {},
+		current_menu = "main",
 		name = "menus",
 		title_image = nil,
 	}
@@ -18,14 +19,37 @@ end
 
 function MenuState:init()
 	self.title_image = love.graphics.newImage("assets/RebelGorilla.png")
-	--self.input:addButton("press","d",function()error('hit, d')end)
-	self.menu:addItem{name='Start Game', action=function()self.game:switch("level")end}
-	self.menu:addItem{name='Options LOLOLOLOLOLOL', action=function()error('No Options :( ')end}
-	self.menu:addItem{name='Quit Game', action=function()self.game:switch("level")end}
+	self.menus["main"] = Menu:new(600,400)
+	self.menus["options"] = Menu:new(600,400)
+	self.menus["video"] = Menu:new(600,400)
+	self.menus["audio"] = Menu:new(600,400)
+	self.menus["controls"] = Menu:new(600,400)
+	--MAIN MENU
+	--Here's where we decide if CONTINUE GAME akes sense
+	self.menus["main"]:addItem{name='Start Game', action=function()self.game:switch("level")end}
+	self.menus["main"]:addItem{name='Options', action=function()self.current_menu="options"end}
+	self.menus["main"]:addItem{name='Quit Game', action=function()love.event.quit()end}
+	
+	--OPTIONS MENU
+	self.menus["options"]:addItem{name='Video', action=function()self.current_menu="video"end}
+	self.menus["options"]:addItem{name='Audio', action=function()self.current_menu="audio"end}
+	self.menus["options"]:addItem{name='Controls', action=function()self.current_menu="controls"end}
+	self.menus["options"]:addItem{name='Back', action=function()self.current_menu="main"end}
+	
+	--VIDEO MENU
+	self.menus["video"]:addItem{name='Back', action=function()self.current_menu="options"end}
+
+	--AUDIO MENU
+	self.menus["audio"]:addItem{name='Back', action=function()self.current_menu="options"end}
+
+	--CONTROLS MENU
+	self.menus["controls"]:addItem{name='Back', action=function()self.current_menu="options"end}
+
+	--INPUTS
 	self.input:addButton("press","z",function()self.game:switch("level")end)
-	self.input:addButton("press","up",function()self.menu:selectPrevious()end)
-	self.input:addButton("press","down",function()self.menu:selectNext()end)
-	self.input:addButton("press","return",function()self.menu:select()end)
+	self.input:addButton("press","up",function()self.menus[self.current_menu]:selectPrevious()end)
+	self.input:addButton("press","down",function()self.menus[self.current_menu]:selectNext()end)
+	self.input:addButton("press","return",function()self.menus[self.current_menu]:select()end)
 end --when state is first created, run only once
 
 function MenuState:leave()end --when state is no longer active
@@ -40,7 +64,7 @@ function MenuState:draw()
 	love.graphics.setColor(255,255,255)
 	love.graphics.clear()
 	love.graphics.draw(self.title_image,screen_width/2 - self.title_image:getWidth()/2,screen_height/2 - self.title_image:getHeight()/2)
-	self.menu:draw()
+	self.menus[self.current_menu]:draw()
 end
 function MenuState:focus()end
 function MenuState:keypressed(key)

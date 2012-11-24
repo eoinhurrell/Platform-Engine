@@ -10,7 +10,8 @@ function PauseState:new(g)
 		game = g,
 		name = "pause",
 		input = Input:new(),
-		menu = Menu:new(120,100),
+		menus = {},
+		current_menu = "main",
 		from = nil,
 	}
 	setmetatable(object, { __index = PauseState })
@@ -23,17 +24,36 @@ end
 
 function PauseState:init()
 	--love.graphics.setNewFont("assets/DroidSans.ttf", 12)
-	self.menu:addItem{name="Resume Game",action=function()self.game:switch(self.from.name)end}
-	self.menu:addItem{name="Save",action=function()end}
-	self.menu:addItem{name="Load",action=function()end}
-	self.menu:addItem{name="Options",action=function()end}
-	self.menu:addItem{name="Achievements",action=function()end}
-	self.menu:addItem{name="Quit Game",action=function()self.game:switch("menus")end}
-	self.menu:addItem{name="Quit To Desktop",action=function()love.event.quit()end}
-	self.input:addButton("press","up",function()self.menu:selectPrevious() end)
-	self.input:addButton("press","down",function()self.menu:selectNext() end)
+	self.menus["main"] = Menu:new(120,100)
+	self.menus["save"] = Menu:new(120,100)
+	self.menus["load"] = Menu:new(120,100)
+	self.menus["options"] = Menu:new(120,100)
+	
+	--Main Menu
+	self.menus["main"]:addItem{name="Resume Game",action=function()self.game:switch(self.from.name)end}
+	self.menus["main"]:addItem{name="Save",action=function()self.current_menu="save"end}
+	self.menus["main"]:addItem{name="Load",action=function()self.current_menu="load"end}
+	self.menus["main"]:addItem{name="Options",action=function()self.current_menu="options"end}
+	self.menus["main"]:addItem{name="Toggle Debug",action=function()self.game:setDebugStatus(not self.game:isDebug())end}
+	self.menus["main"]:addItem{name="Achievements",action=function()end}
+	self.menus["main"]:addItem{name="Quit Game",action=function()self.game:switch("menus")end}
+	self.menus["main"]:addItem{name="Quit To Desktop",action=function()love.event.quit()end}
+	
+	
+	--Save Menu
+	self.menus["save"]:addItem{name="Back",action=function()self.current_menu="main"end}
+	
+	--Load Menu
+	self.menus["load"]:addItem{name="Back",action=function()self.current_menu="main"end}
+	
+	--Options Menu
+	self.menus["options"]:addItem{name="Back",action=function()self.current_menu="main"end}	
+	
+	--INPUTS
+	self.input:addButton("press","up",function()self.menus[self.current_menu]:selectPrevious() end)
+	self.input:addButton("press","down",function()self.menus[self.current_menu]:selectNext() end)
 	self.input:addButton("press","escape",function()self.game:switch(self.from.name)end)
-	self.input:addButton("press","return",function()self.menu:select()end)
+	self.input:addButton("press","return",function()self.menus[self.current_menu]:select()end)
 	--self.input:addButton("press","`",function()self.game:switch("console")end)	
 end --when state is first created, run only once
 function PauseState:leave()end --when state is no longer active
@@ -44,12 +64,19 @@ function PauseState:finish()end --when state is finished
 function PauseState:update(dt)
 	self.input:update(dt)
 end
+
 function PauseState:draw()
-	local height=love.graphics.getHeight()
-	local width=love.graphics.getWidth()
 	self.from:draw()
-	love.graphics.print("Paused", width/2-100,height/2-140,0)
-	self.menu:draw()
+	self:printTitle()
+	self.menus[self.current_menu]:draw()
+end
+
+function PauseState:printTitle()
+	love.graphics.setColor(255,0,0)
+	love.graphics.rectangle("fill",120,80,120,60)
+	love.graphics.setColor(0,0,0)
+	love.graphics.print("Paused", 130,85,0)
+	love.graphics.setColor(255,255,255)
 end
 
 function PauseState:drawMainPause()
