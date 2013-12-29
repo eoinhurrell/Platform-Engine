@@ -16,7 +16,8 @@ function Level:new(Level_name,s,player)
 	}
 	object.loader.path = "maps/"
 	object.map = object.loader.load(object.name)
-	object.map:setDrawRange(0, 0, object.map.width * object.map.tileWidth, object.map.height * object.map.tileHeight)
+	--object.map:setDrawRange(0, 0, object.map.width * object.map.tileWidth, object.map.height * object.map.tileHeight)
+	object.map:setDrawRange(0, 0, 200,200)--object.map.width * object.map.tileWidth, object.map.height * object.map.tileHeight)
 	--To change the parallax speed you only need to set the values TileLayer.parallaxX and TileLayer.parallaxY. 1 equals 100% speed so if parallaxX was set to 2 then horizontal scrolling speed would be doubled.
 	--object.map.layers["Background"].parallaxX = 2
 	object.map.drawObjects = false

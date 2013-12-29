@@ -4,24 +4,50 @@ SummaryState = {}
 function SummaryState:new(g)
 	-- define our parameters here
 	local object = {
-		game = g,
-		name = "pause",
-		input = Input:new(),
-		from = nil,
+		game        = g,
+		name        = "pause",
+		input       = Input:new(),
+		from        = nil,
 		highlighted = 1,
-		action_text={"Quit to Desktop"},
-		action = {function() love.event.quit() end}
+		info        = Menu:new(120,100),
+		options     = Menu:new(250,love.graphics.getHeight()-150)
 	}
 	setmetatable(object, { __index = SummaryState })
 	return object
 end
 
 function SummaryState:init()
-	love.graphics.setNewFont("assets/DroidSans.ttf", 12)
+	--love.graphics.setNewFont("assets/DroidSans.ttf", 12)
+	self.info:setSelectable(false)
+	local str = "Score"
+	str = str .. string.rep(' ', 45 - #str) .. self.game.statistics["level_score"]
+	self.info:addItem{name=str,action=function()end}
+	str = "Time"
+	str = str .. string.rep(' ', 45 - #str) .. self.game.statistics["level_time"]
+	self.info:addItem{name=str,action=function()end}
+	str = "Time Walking"
+	str = str .. string.rep(' ', 45 - #str) .. self.game.statistics["level_walk"]
+	self.info:addItem{name=str,action=function()end}
+	str = "Time Jumping"
+	str = str .. string.rep(' ', 45 - #str) .. self.game.statistics["level_jump"]
+	self.info:addItem{name=str,action=function()end}
+	str = "Time Falling"
+	str = str .. string.rep(' ', 45 - #str) .. self.game.statistics["level_fall"]
+	self.info:addItem{name=str,action=function()end}
+	str = "Time Hanging"
+	str = str .. string.rep(' ', 45 - #str) .. self.game.statistics["level_hang"]
+	self.info:addItem{name=str,action=function()end}
+	
+	self.options:addItem{name="Continue",action=function()self.game:switch(self.from.name)end}
+	self.options:addItem{name="Quit to Menu",action=function()self.game:switch(self.from.name)end}
+	self.options:addItem{name="Quit to Desktop",action=function()self.game:switch(self.from.name)end}
+	
 	self.input = Input:new()
-	self.input:addButton("press","space",function()self.game:switch(self.from.name)end)
+	self.input:addButton("press","up",function()self.options:selectPrevious()end)
+	self.input:addButton("press","down",function()self.options:selectNext()end)
+	self.input:addButton("press","spacebar",function()self.options:select()end)
 	self.input:addButton("press","escape",function()self.game:switch(self.from.name)end)
-	self.input:addButton("press","return",function()self.game:switch(self.from.name)end)
+	self.input:addButton("press","return",function()self.options:select()end)
 	--self.input:addButton("press","`",function()self.game:switch("console")end)	
 end --when state is first created, run only once
 function SummaryState:leave()end --when state is no longer active
@@ -39,26 +65,8 @@ function SummaryState:draw()
 	love.graphics.rectangle("fill",width,height,300,300)
 	love.graphics.setColor(255,255,255)
 	love.graphics.print("Level Summary", width/2-100,height/2-240,0,2,2)
-	-- local i = 1
-	-- for k,v in pairs(self.game.statistics) do
-	-- 	local name = "" .. k .. string.rep(' ', 20-#k)
-	-- 	love.graphics.print(name..v, width/2-100,height/2-140 +(22*i),0,1,1)
-	-- 	i = i + 1
-	-- end
-	love.graphics.print("Score",width/2-100,height/2-165,0,1,1)
-	love.graphics.print(""..self.game.statistics["level_score"],width/2-300,height/2-165,0,1,1)
-	love.graphics.print("Time",width/2-100,height/2-190,0,1,1)
-	love.graphics.print(""..self.game.statistics["level_time"],width/2-300,height/2-190,0,1,1)
-	love.graphics.print("Time Idle",width/2-100,height/2-215,0,1,1)
-	love.graphics.print(""..self.game.statistics["level_idle"],width/2-300,height/2-215,0,1,1)
-	love.graphics.print("Time Walking",width/2-100,height/2-240,0,1,1)
-	love.graphics.print(""..self.game.statistics["level_walk"],width/2-300,height/2-240,0,1,1)
-	love.graphics.print("Time Jumping",width/2-100,height/2-265,0,1,1)
-	love.graphics.print(""..self.game.statistics["level_jump"],width/2-300,height/2-265,0,1,1)
-	love.graphics.print("Time Falling",width/2-100,height/2-290,0,1,1)
-	love.graphics.print(""..self.game.statistics["level_fall"],width/2-300,height/2-290,0,1,1)
-	love.graphics.print("Time Hanging",width/2-100,height/2-315,0,1,1)
-	love.graphics.print(""..self.game.statistics["level_hang"],width/2-300,height/2-315,0,1,1)
+	self.info:draw()
+	self.options:draw()
 end
 
 function SummaryState:focus()end

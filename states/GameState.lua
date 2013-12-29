@@ -17,7 +17,7 @@ function GameState:new(g)
 		game = g,
 		name = "level",
 		current_level = 1, 
-		level_list = {"test.tmx","test2.tmx"},
+		level_list = {"level_1.tmx","level_2.tmx","level_3.tmx","level_4.tmx","level_5.tmx"},
 		p = Player:new(),
 		input = Input:new(),
 		hud = nil,

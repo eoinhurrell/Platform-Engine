@@ -23,7 +23,7 @@
  </layer>
  <layer name="Foreground" width="255" height="35">
   <data encoding="base64" compression="zlib">
-   eJztwTEBAAAAwqD1T20KP6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4GuLdAAB
+   eJztxzENAAAIA7BZwr85MheQtF8TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKDm+QEA4LIFCBoCTQ==
   </data>
  </layer>
  <objectgroup name="Objects" width="255" height="35">
@@ -71,6 +71,11 @@
   <object name="level_finish" type="trigger" x="2514" y="308" width="590" height="774">
    <properties>
     <property name="level" value="1"/>
+   </properties>
+  </object>
+  <object name="gas" type="hazard" x="1055" y="927" width="1537" height="138">
+   <properties>
+    <property name="damage" value="3"/>
    </properties>
   </object>
  </objectgroup>

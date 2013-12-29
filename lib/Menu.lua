@@ -7,6 +7,7 @@ function Menu:new(loc_x,loc_y)
     -- define our parameters here
     local object = {
 		items	= {},
+		selectable = true,
 		selected = 1,
 		x = loc_x,
 		y = loc_y,
@@ -49,6 +50,10 @@ function Menu:selectPrevious()
 	end
 end
 
+function Menu:setSelectable(is_selectable)
+	self.selectable = is_selectable
+end
+
 function Menu:draw()
 	local screen_width = love.graphics.getWidth()
 	local screen_height = love.graphics.getHeight()
@@ -58,7 +63,7 @@ function Menu:draw()
 	local offset = 30
 	for i,item in pairs(self.items) do
 		love.graphics.print(item.name, self.x + 25, self.y+offset)
-		if i == self.selected then 
+		if i == self.selected and self.selectable then 
 			-- Arrow highlighter
 			love.graphics.print(">", self.x + 10, self.y+offset)
 			--Underline
